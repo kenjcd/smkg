@@ -1,177 +1,218 @@
-<!doctype html>
-<html lang="ms">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Portal Digital SMK Gunsanad</title> 
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Dynamic Portal</title>
+
   <style>
-    :root{
-      --black:#1a1a1a; --yellow:#ffc107; --green:#28a745; --white:#ffffff;
+    :root {
+      --bg: #f8f9fa;
+      --text: #212529;
+      --accent: #dee2e6;
+      --card-bg: #ffffff;
+      --primary-blue: #4a90e2;
     }
-    body{ font-family: 'Oswald', sans-serif; margin:0; background-color: #ffffff; color:var(--black); }
-    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 18px; background:var(--white); border-bottom:4px solid var(--green); }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .brand img{ width:72px; height:72px; border-radius:50%; object-fit:cover; box-shadow:0 4px 8px rgba(0,0,0,0.12); }
-    .brand h1{ margin:0; color:var(--yellow); font-size:30px; }
-    .brand p{ margin:0; color:var(--black); font-size:15px; }
-    .lang-switch{ margin-left:auto; display:flex; gap:8px; }
-    .lang-btn{ border:2px solid rgba(0,0,0,0.08); padding:6px 10px; border-radius:6px; background:transparent; cursor:pointer; font-weight:700; }
-    main{ padding:28px; max-width:1100px; margin:0 auto; }
-    .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
-    .card{ padding:32px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); background:linear-gradient(180deg,var(--white), #fbfbfb); text-align:center; font-weight:700; text-transform:uppercase; }
-    .btn-hem, .btn-erph{ background:var(--yellow); color:var(--black); padding:18px 8px; border-radius:12px; display:inline-block; text-decoration:none; }
-    .btn-mmi, .btn-kawalan{ background:var(--white); color:var(--black); padding:18px 8px; border-radius:12px; display:inline-block; text-decoration:none; border:2px solid rgba(0,0,0,0.06); }
-        footer {
-      background:var(--kuning); color:var(--hitam); text-align:center;
-      padding:12px; margin-top:24px; font-weight:700;
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
     }
- 
-  html, body {
-    height: 100%;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Poppins', sans-serif;
-    background-color: #fff;
-  }
 
-  main {
-    flex: 1;
-    padding-bottom: 40px; /* beri ruang supaya footer tak rapat sangat */
-  }
+    a { text-decoration: none; color: inherit; }
+    a:hover { text-decoration: none; }
 
-  footer {
-    background-color: #ffc107;
-    color: #000;
-    text-align: center;
-    padding: 18px 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    width: 100%;
-    margin-top: auto;
-    box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.1);
-  }
+    .parallax-wrapper {
+      perspective: 10px;
+      height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+    }
+    .layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+    .bg-base { background: radial-gradient(circle at 50% 50%, #e9ecef 0%, #f8f9fa 100%); transform: translateZ(-10px) scale(2); }
+    .bg-accent { background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.15; transform: translateZ(-5px) scale(1.5); }
 
-  footer .footer-content {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
+    .hero {
+      padding-top: 15vh;
+      text-align: center;
+      perspective: 1000px;
+    }
+    .title-container {
+      display: inline-flex;
+      gap: 15px;
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -2px;
+      overflow: hidden;
+    }
+    .fly-left, .fly-right {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--text) 0%, var(--primary-blue) 50%, var(--text) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: transform 0.1s ease-out;
+    }
+    .fly-left { animation: flyInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1) both; }
+    .fly-right { animation: flyInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
-  footer img {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+    @keyframes flyInLeft {
+      0% { opacity: 0; transform: translateX(-100px) skewX(20deg); filter: blur(10px); }
+      100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0); }
+    }
+    @keyframes flyInRight {
+      0% { opacity: 0; transform: translateX(100px) skewX(-20deg); filter: blur(10px); }
+      100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0); }
+    }
 
-  footer small {
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    color: #222;
-  }
+    #app { padding: 0 10%; text-align: center; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+      padding-bottom: 5rem;
+    }
 
+    .card {
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.05);
+      user-select: none;
+    }
+    .card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+      border-color: var(--primary-blue);
+    }
+
+    .card.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+    }
+    .card.disabled:hover {
+      transform: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      border-color: rgba(0,0,0,0.05);
+    }
+
+    .card h3 { margin: 8px 0 8px; }
+    .card p { margin: 0; opacity: 0.75; }
   </style>
-  
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="logo-smkgunsanad.png" alt="Logo">
-      <div>
-        <h1 id="title-text">DASHBOARD SMK GUNSANAD</h1>
-        <p id="subtitle-text">SMK GUNSANAD BERABIS CEMERLANG</p>
-      </div>
-    </div>
-
-    <div class="lang-switch" aria-hidden="false">
-      <button class="lang-btn" id="btn-bm">BM</button>
-      <button class="lang-btn" id="btn-en">EN</button>
-    </div>
-  </header>
-
-  <main>
-       <section style="margin-top:10px; text-align:center;">
-      <h2 id="welcome-title">Selamat Datang</h2>
-      <p id="welcome-desc">Portal rasmi untuk warga SMK Gunsanad. Gunakan menu di bawah untuk mengakses sistem sekolah.</p>
-    </section>
-
-     <main>
-       <section style="margin-top:30px; text-align:left;">
-     
-    </section>
-    
-    <div class="grid" id="buttonGrid">
-      
-    </div>
-    
-    
-    <div class="grid" id="buttonGrid">
-      <a href="#" target="_blank" class="card btn-hem" id="unit-hem">UNIT HEM</a>
-      <a href="jual-beli.html" target="_blank" class="card btn-mmi" id="mmi">MMI SEKOLAH (JUAL BELI)</a>
-      <a href="https://classroom.google.com/u/1/h" target="_blank" class="card btn-erph" id="erph">ERPH</a>
-      <a href="#" target="_blank" class="card btn-kawalan" id="kawalan">KAWALAN KELAS</a>
-    </div>
-
-  
-  </main>
-    
-<footer>
-  <div class="footer-content">
-    <div>SMK GUNSANAD BERABIS CEMERLANG</div>
-    <small>Versi 2.0 &nbsp;|&nbsp; Dikemaskini Oktober 2025</small>
+  <div class="parallax-wrapper">
+    <div class="layer bg-base"></div>
+    <div class="layer bg-accent"></div>
   </div>
-</footer>
+
+  <main id="app">
+    <section class="hero">
+      <div class="title-container" id="title">
+        <span class="fly-left">SchoolConnect</span>
+        <span class="fly-right">@SMKG</span>
+      </div>
+      <p style="opacity: 0.5; margin-top: 1px;">Pengurusan Dashboard Digital Sekolah Transformasi, Capaian di Jari Anda!</p>
+    </section>
+
+    <div id="card-container" class="grid"></div>
+  </main>
 
   <script>
-    const texts = {
-      bm: {
-        title: "DASHBOARD SMK GUNSANAD",
-        subtitle: "SMK GUNSANAD BERABIS CEMERLANG",
-        unitHem: "UNIT HEM",
-        mmi: "MMI SEKOLAH (JUAL BELI)",
-        erph: "ERPH",
-        kawalan: "KAWALAN KELAS",
-        welcomeTitle: "Selamat Datang",
-        welcomeDesc: "Portal rasmi untuk warga SMK Gunsanad. Gunakan menu di bawah untuk mengakses sistem sekolah."
+    // Comes from render_("Index", { serviceUrl })
+    const serviceUrl = "<?= serviceUrl ?>";
+
+    // ✅ IMPORTANT:
+    // Store ONLY querystrings here (NOT full URLs)
+    const portals = [
+      {
+        title: "Akademik",
+        qs: "page=login&section=akademik",
+        desc: "Pengurusan kurikulum & bilik darjah.",
+        icon: "🎓"
       },
-      en: {
-        title: "SMK GUNSANAD DASHBOARD",
-        subtitle: "SMK GUNSANAD BERABIS CEMERLANG",
-        unitHem: "Student Affairs Unit",
-        mmi: "MMI SCHOOL (TRADE PERIODS)",
-        erph: "ERPH",
-        kawalan: "CLASS CONTROL",
-        welcomeTitle: "Welcome",
-        welcomeDesc: "Official portal for SMK Gunsanad staff. Use the menu above to access school systems."
+      {
+        title: "MMI",
+        qs: "page=mmi",
+        desc: "Memaksimakan Masa Instruktional.",
+        icon: "👥"
+      },
+      {
+        title: "GURU CEMERLANG",
+        qs: "page=gc",
+        desc: "Menginspirasi Generasi, Mencipta Masa Depan.",
+        icon: "🏆"
       }
-    };
+    ];
 
-    const setLang = (lang) => {
-      localStorage.setItem('siteLang', lang);
-      const t = texts[lang];
-      document.getElementById('title-text').textContent = t.title;
-      document.getElementById('subtitle-text').textContent = t.subtitle;
-      document.getElementById('unit-hem').textContent = t.unitHem;
-      document.getElementById('mmi').textContent = t.mmi;
-      document.getElementById('erph').textContent = t.erph;
-      document.getElementById('kawalan').textContent = t.kawalan;
-      document.getElementById('welcome-title').textContent = t.welcomeTitle;
-      document.getElementById('welcome-desc').textContent = t.welcomeDesc;
-    };
+    // ✅ Option B: force TOP navigation and always use the real webapp URL
+    function goTop(qs) {
+      if (!qs) return;
+      const url = serviceUrl + "?" + qs;
+      window.top.location.href = url;
+    }
 
-    document.getElementById('btn-bm').addEventListener('click', () => setLang('bm'));
-    document.getElementById('btn-en').addEventListener('click', () => setLang('en'));
+    function escAttr(s) {
+      return String(s).replace(/&/g, "&amp;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;");
+    }
 
-    const saved = localStorage.getItem('siteLang') || 'bm';
-    setLang(saved);
+    function renderCards() {
+      const html = portals.map(item => {
+        const enabled = !!item.qs;
+        const cardClass = enabled ? "card" : "card disabled";
+        const safeTitle = escAttr(item.title);
+        const safeDesc  = escAttr(item.desc);
+        const safeIcon  = escAttr(item.icon);
+
+        return `
+          <div class="${cardClass}" ${enabled ? `onclick="goTop('${escAttr(item.qs)}')"` : ""}>
+            <div style="font-size: 2rem; margin-bottom: 5px;">${safeIcon}</div>
+            <h3>${safeTitle}</h3>
+            <p>${safeDesc}</p>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("card-container").innerHTML = html;
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      const leftPart = document.querySelector('.fly-left');
+      const rightPart = document.querySelector('.fly-right');
+
+      const x = (window.innerWidth / 2 - e.pageX) / 50;
+      const y = (window.innerHeight / 2 - e.pageY) / 50;
+      const transformStr = `rotateY(${x}deg) rotateX(${y}deg)`;
+
+      leftPart.style.transform = transformStr;
+      rightPart.style.transform = transformStr;
+
+      const mouseXPercentage = (e.clientX / window.innerWidth) * 100;
+      leftPart.style.backgroundPosition = `${mouseXPercentage}% center`;
+      rightPart.style.backgroundPosition = `${mouseXPercentage}% center`;
+    });
+
+    renderCards();
   </script>
-  
+
+  <center>~ SMK GUNSANAD BERABIS CEMERLANG ~</center>
 </body>
 </html>
