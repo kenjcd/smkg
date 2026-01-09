@@ -1,218 +1,1089 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+  <base target="_top" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minimalist Dynamic Portal</title>
+  <!-- ✅ Define info ONCE (prevents "info already declared" / "info not defined") -->
+  <script>
+    window.info = <?= JSON.stringify(info || {}) ?>;
+    const info = window.info;
+    // console.log("INFO:", info);
+  </script>
 
   <style>
-    :root {
-      --bg: #f8f9fa;
-      --text: #212529;
-      --accent: #dee2e6;
-      --card-bg: #ffffff;
-      --primary-blue: #4a90e2;
+    :root{
+      --bg:#f6f8fc;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e6eaf2;
+
+      --primary:#2563eb;
+      --primarySoft:#eff6ff;
+
+      --link:#6aa7ff;
+      --linkHover:#3b82f6;
+
+      --danger:#e11d48;
+      --dangerSoft:#fff1f2;
+
+      --shadowSm: 0 1px 2px rgba(2,6,23,.06);
+      --shadowMd: 0 10px 28px rgba(2,6,23,.10);
+
+      --r12:12px;
+      --r16:16px;
+      --r20:20px;
+
+      --fs11:11px;
+      --fs12:12px;
+      --fs13:13px;
+      --fs14:14px;
+      --fs16:16px;
+      --fs20:20px;
+      --fs26:26px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    body, html {
-      margin: 0;
-      padding: 0;
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: var(--bg);
-      font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
-      overflow-x: hidden;
+      overflow:hidden;
     }
 
-    a { text-decoration: none; color: inherit; }
-    a:hover { text-decoration: none; }
-
-    .parallax-wrapper {
-      perspective: 10px;
-      height: 100vh;
-      overflow-x: hidden;
-      overflow-y: auto;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: -1;
+    .app{
+      height:100%;
+      display:grid;
+      grid-template-columns: 280px 1fr;
     }
-    .layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-    .bg-base { background: radial-gradient(circle at 50% 50%, #e9ecef 0%, #f8f9fa 100%); transform: translateZ(-10px) scale(2); }
-    .bg-accent { background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.15; transform: translateZ(-5px) scale(1.5); }
 
-    .hero {
-      padding-top: 15vh;
-      text-align: center;
-      perspective: 1000px;
+    .sidebar{
+      background: var(--panel);
+      border-right:1px solid var(--border);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding:18px 14px;
+      overflow:hidden;
     }
-    .title-container {
-      display: inline-flex;
-      gap: 15px;
-      font-size: clamp(3rem, 8vw, 5rem);
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 6px 8px 2px;
+    }
+    .logo{
+      width:38px; height:38px;
+      border-radius:12px;
+      background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(37,99,235,.03));
+      border: 1px solid rgba(37,99,235,.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      color: var(--primary);
+      letter-spacing:.3px;
+    }
+    .brandText{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+      gap:3px;
+      min-width:0;
+    }
+    .brandText .t1{ font-size: var(--fs16); font-weight: 900; letter-spacing: -.02em; }
+    .brandText .t2{ font-size: var(--fs12); color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .nav{
+      flex:1;
+      overflow:auto;
+      padding: 4px;
+    }
+    .navGroup{ margin: 10px 4px 6px; font-size: var(--fs11); letter-spacing:.08em; font-weight:800; color: var(--muted); text-transform:uppercase; }
+    .navBtn{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border:1px solid transparent;
+      background: transparent;
+      border-radius: 14px;
+      padding: 10px 10px;
+      cursor:pointer;
+      font:inherit;
+      text-align:left;
+    }
+    .navBtn:hover{ background: rgba(15,23,42,.035); }
+    .navBtn.active{
+      background: var(--primarySoft);
+      border-color: rgba(37,99,235,.18);
+      color: var(--primary);
+    }
+    .navBtn .left{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .navIco{
+      width:34px; height:34px; border-radius: 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      display:flex; align-items:center; justify-content:center;
+      flex:0 0 auto;
+    }
+    .navLabel{
+      display:flex; flex-direction:column; gap:2px; min-width:0;
+    }
+    .navLabel b{ font-size: var(--fs14); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .navLabel span{ font-size: var(--fs12); color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .navMeta{
+      font-size: var(--fs12);
+      color: var(--muted);
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 999px;
+      padding: 4px 8px;
+      white-space:nowrap;
+    }
+
+    .sidebarFoot{
+      border-top:1px solid var(--border);
+      padding: 12px 8px 4px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .userBadge{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 10px 8px 12px;
+      box-shadow: var(--shadowSm);
+    }
+    .userInfo{
+      display:flex;
+      flex-direction:column;
+      gap:1px;
+      min-width:0;
+    }
+    .userInfo b{ font-size: var(--fs13); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .userInfo span{ font-size: var(--fs12); color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .logoutBtn{
+      border:none;
+      background: var(--dangerSoft);
+      color: var(--danger);
       font-weight: 900;
-      letter-spacing: -2px;
-      overflow: hidden;
-    }
-    .fly-left, .fly-right {
-      display: inline-block;
-      background: linear-gradient(90deg, var(--text) 0%, var(--primary-blue) 50%, var(--text) 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: transform 0.1s ease-out;
-    }
-    .fly-left { animation: flyInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1) both; }
-    .fly-right { animation: flyInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) both; }
-
-    @keyframes flyInLeft {
-      0% { opacity: 0; transform: translateX(-100px) skewX(20deg); filter: blur(10px); }
-      100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0); }
-    }
-    @keyframes flyInRight {
-      0% { opacity: 0; transform: translateX(100px) skewX(-20deg); filter: blur(10px); }
-      100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0); }
+      font-size: var(--fs12);
+      border-radius: 999px;
+      padding: 7px 10px;
+      cursor:pointer;
+      white-space:nowrap;
     }
 
-    #app { padding: 0 10%; text-align: center; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 4rem;
-      padding-bottom: 5rem;
+    .viewport{
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
     }
 
-    .card {
-      background: var(--card-bg);
-      padding: 2.5rem;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-      transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-      cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.05);
-      user-select: none;
-    }
-    .card:hover {
-      transform: translateY(-15px);
-      box-shadow: 0 25px 50px rgba(0,0,0,0.08);
-      border-color: var(--primary-blue);
+    .header{
+      height: 68px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(246,248,252,.78);
+      backdrop-filter: blur(10px);
     }
 
-    .card.disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      filter: grayscale(0.2);
+    .crumbs{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width: 0;
     }
-    .card.disabled:hover {
-      transform: none;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-      border-color: rgba(0,0,0,0.05);
+    .crumb{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      padding: 6px 10px;
+      font-size: var(--fs12);
+      cursor:pointer;
+      max-width: 240px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .crumb:hover{ background: rgba(15,23,42,.035); }
+    .crumbSep{
+      color: var(--muted);
+      font-weight:800;
+      font-size: var(--fs12);
+      user-select:none;
     }
 
-    .card h3 { margin: 8px 0 8px; }
-    .card p { margin: 0; opacity: 0.75; }
+    .headerRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:flex-end;
+      min-width: 260px;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: var(--fs12);
+      color: var(--muted);
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 6px 8px;
+      white-space:nowrap;
+    }
+
+    .content{
+      flex:1;
+      overflow:hidden;
+      padding: 16px 18px 18px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 14px;
+    }
+
+    .panel{
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--r20);
+      box-shadow: var(--shadowMd);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 0;
+    }
+    .panelHead{
+      padding: 12px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .panelHead h3{
+      margin:0;
+      font-size: var(--fs13);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .pill{
+      font-size: var(--fs12);
+      color: var(--muted);
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 999px;
+      padding: 4px 8px;
+      white-space:nowrap;
+    }
+    .panelBody{
+      flex:1;
+      overflow:auto;
+      padding: 12px;
+      min-height:0;
+      scrollbar-gutter: stable;
+    }
+    @supports not (scrollbar-gutter: stable){
+      .panelBody{ overflow-y: scroll; }
+    }
+
+    .explToolbar{
+      display:flex;
+      gap:10px;
+      padding: 12px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15,23,42,.02), transparent);
+    }
+    .miniBtn{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font:inherit;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .miniBtn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .search{
+      flex:1;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font:inherit;
+      outline:none;
+    }
+    .search:focus{
+      border-color: rgba(37,99,235,.35);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding: 12px;
+    }
+
+    .item{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 14px;
+      padding: 12px;
+      cursor:pointer;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .item:hover{ background: rgba(15,23,42,.02); }
+    .item.active{
+      border-color: rgba(37,99,235,.35);
+      background: var(--primarySoft);
+    }
+    .itemLeft{ display:flex; gap:10px; min-width:0; }
+    .itemIco{
+      width:36px; height:36px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+    }
+    .itemText{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .itemText b{ font-size: var(--fs14); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .itemText span{ font-size: var(--fs12); color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .itemRight{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:6px;
+      flex:0 0 auto;
+    }
+    .count{
+      font-family: var(--mono);
+      font-size: var(--fs12);
+      color: var(--muted);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background:#fff;
+      padding: 4px 8px;
+    }
+    .tag{
+      font-size: var(--fs11);
+      font-weight: 800;
+      color: var(--primary);
+      background: rgba(37,99,235,.10);
+      border: 1px solid rgba(37,99,235,.20);
+      border-radius:999px;
+      padding: 3px 8px;
+      white-space:nowrap;
+    }
+
+    .doc{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 8px 6px 24px;
+    }
+    .docTitle{
+      margin: 6px 0 8px;
+      font-size: var(--fs26);
+      letter-spacing: -.02em;
+      font-weight: 900;
+    }
+    .docSub{
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: var(--fs13);
+      line-height: 1.45;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+      margin: 16px 0 10px;
+    }
+    .heroCard{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: var(--r16);
+      padding: 14px;
+      box-shadow: var(--shadowSm);
+      min-height: 90px;
+    }
+    .heroCard h4{ margin:0 0 6px; font-size: var(--fs14); }
+    .heroCard p{ margin:0; color: var(--muted); font-size: var(--fs13); line-height:1.45; }
+    .tiles{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .tile{
+      border:1px solid var(--border);
+      border-radius: var(--r16);
+      padding: 12px;
+      background: #fff;
+      box-shadow: var(--shadowSm);
+      cursor:pointer;
+    }
+    .tile:hover{ background: rgba(15,23,42,.02); }
+    .tile b{ display:block; font-size: var(--fs14); margin-bottom:4px; }
+    .tile span{ display:block; font-size: var(--fs12); color: var(--muted); }
+
+    a{
+      color: var(--link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    a:hover{ color: var(--linkHover); }
+
+    details{
+      border:1px solid var(--border);
+      border-radius: var(--r16);
+      background: rgba(15,23,42,.015);
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    details > summary{
+      cursor:pointer;
+      font-weight: 900;
+      color: var(--primary);
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    details > summary::-webkit-details-marker{ display:none; }
+    details[open]{
+      background: rgba(37,99,235,.06);
+      border-color: rgba(37,99,235,.18);
+    }
+
+    .muted{ color: var(--muted); }
+    .small{ font-size: var(--fs12); }
+
+    .alert{
+      border:1px solid rgba(225,29,72,.22);
+      background: rgba(225,29,72,.06);
+      color: #8a0f2d;
+      border-radius: var(--r16);
+      padding: 10px 12px;
+      margin: 0 0 10px;
+    }
+
+    @media (max-width: 1100px){
+      body{ overflow:auto; }
+      .app{ grid-template-columns: 1fr; height:auto; }
+      .sidebar{
+        position: sticky;
+        top:0;
+        z-index: 20;
+        flex-direction:row;
+        align-items:center;
+        padding: 10px 10px;
+        border-right:none;
+        border-bottom:1px solid var(--border);
+      }
+      .nav{ display:flex; gap:8px; overflow:auto; padding: 0; }
+      .navGroup{ display:none; }
+      .navBtn{ min-width: 220px; }
+      .sidebarFoot{ display:none; }
+
+      .viewport{ height:auto; }
+      .header{ position: sticky; top: 58px; }
+      .content{ grid-template-columns: 1fr; height:auto; }
+      .panel{ min-height: 380px; }
+      .heroGrid{ grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="parallax-wrapper">
-    <div class="layer bg-base"></div>
-    <div class="layer bg-accent"></div>
+  <div class="app">
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">A</div>
+        <div class="brandText">
+          <div class="t1">AKADEMIK</div>
+          <div class="t2" id="sidebarSub">Digital Workspace</div>
+        </div>
+      </div>
+
+      <div class="nav" id="nav">
+        <div class="navGroup">Main</div>
+        <button class="navBtn active" data-section="home" onclick="selectSection('home')">
+          <div class="left">
+            <div class="navIco">🏠</div>
+            <div class="navLabel">
+              <b>Dashboard</b>
+              <span>Overview & recent</span>
+            </div>
+          </div>
+          <span class="navMeta">Home</span>
+        </button>
+
+        <? if (showPerdana) { ?>
+          <div class="navGroup">Academic</div>
+          <button class="navBtn" data-section="perdana" onclick="selectSection('perdana')">
+            <div class="left">
+              <div class="navIco">🎓</div>
+              <div class="navLabel">
+                <b>Perdana</b>
+                <span>Kurikulum & panitia</span>
+              </div>
+            </div>
+            <span class="navMeta">Modules</span>
+          </button>
+        <? } ?>
+
+        <? if (allowedMap.koko) { ?>
+          <button class="navBtn" data-section="koko" onclick="selectSection('koko')">
+            <div class="left">
+              <div class="navIco">🏅</div>
+              <div class="navLabel">
+                <b>Ko-kurikulum</b>
+                <span>Aktiviti & evidens</span>
+              </div>
+            </div>
+            <span class="navMeta">—</span>
+          </button>
+        <? } ?>
+
+        <? if (allowedMap.ting6) { ?>
+          <!-- ✅ Fix: call selectSection('ting6') to match data-section -->
+          <button class="navBtn" data-section="ting6" onclick="selectSection('ting6')">
+            <div class="left">
+              <div class="navIco">📘</div>
+              <div class="navLabel">
+                <b>Tingkatan 6</b>
+                <span>STPM</span>
+              </div>
+            </div>
+            <span class="navMeta">—</span>
+          </button>
+        <? } ?>
+
+        <? if (allowedMap.ppki) { ?>
+          <button class="navBtn" data-section="ppki" onclick="selectSection('ppki')">
+            <div class="left">
+              <div class="navIco">🧠</div>
+              <div class="navLabel">
+                <b>PPKI</b>
+                <span>Pendidikan khas</span>
+              </div>
+            </div>
+            <span class="navMeta">—</span>
+          </button>
+        <? } ?>
+
+        <? if (allowedMap.kaunseling) { ?>
+          <button class="navBtn" data-section="kaunseling" onclick="selectSection('kaunseling')">
+            <div class="left">
+              <div class="navIco">💬</div>
+              <div class="navLabel">
+                <b>Kaunseling</b>
+                <span>Sokongan murid</span>
+              </div>
+            </div>
+            <span class="navMeta">—</span>
+          </button>
+        <? } ?>
+
+        <? if (allowedMap.hem) { ?>
+          <!-- ✅ Fix: use serviceUrl so it works in webapp routes -->
+          <a class="navBtn"
+             href="<?= serviceUrl ?>?page=hem&amp;sid=<?= sid ?>"
+             target="_top"
+             rel="noopener"
+             style="text-decoration:none;">
+            <div class="left">
+              <div class="navIco">🧩</div>
+              <div class="navLabel">
+                <b>HEM</b>
+                <span>Hal Ehwal Murid</span>
+              </div>
+            </div>
+            <span class="navMeta">↗</span>
+          </a>
+        <? } ?>
+
+        <div class="navGroup">Other</div>
+
+        <a class="navBtn"
+           href="<?= serviceUrl ?>?page=data&sid=<?= sid ?>"
+           target="_top"
+           rel="noopener"
+           style="text-decoration:none;">
+          <div class="left">
+            <div class="navIco">📊</div>
+            <div class="navLabel">
+              <b>Data</b>
+              <span>Internal page</span>
+            </div>
+          </div>
+          <span class="navMeta">↗</span>
+        </a>
+
+        <a class="navBtn" href="https://idme.moe.gov.my/login" target="_blank" rel="noopener" style="text-decoration:none;">
+          <div class="left">
+            <div class="navIco">🧭</div>
+            <div class="navLabel">
+              <b>IDME</b>
+              <span>External portal</span>
+            </div>
+          </div>
+          <span class="navMeta">↗</span>
+        </a>
+
+        <a class="navBtn" href="https://hrmis2.eghrmis.gov.my/" target="_blank" rel="noopener" style="text-decoration:none;">
+          <div class="left">
+            <div class="navIco">🧑‍💼</div>
+            <div class="navLabel">
+              <b>HRMIS</b>
+              <span>External (HR)</span>
+            </div>
+          </div>
+          <span class="navMeta">↗</span>
+        </a>
+      </div>
+
+      <div class="sidebarFoot">
+        <div class="userBadge">
+          <div class="userInfo">
+            <b id="uName"><?= username ?></b>
+            <span id="uRole"><?= role ?></span>
+          </div>
+          <!-- ✅ Fix: use serviceUrl for logout -->
+          <button class="logoutBtn" onclick="location.href='<?= serviceUrl ?>?page=logout&sid=<?= sid ?>'">EXIT</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== Main viewport ===== -->
+    <section class="viewport">
+      <header class="header">
+        <div class="crumbs" id="crumbs"></div>
+        <div class="headerRight">
+          <div class="kbd">Search: <b>/</b></div>
+          <div class="kbd">Back: <b>Esc</b></div>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Explorer -->
+        <div class="panel">
+          <div class="panelHead">
+            <h3>Explorer</h3>
+            <span class="pill" id="explPill">Dashboard</span>
+          </div>
+
+          <div class="explToolbar">
+            <button class="miniBtn" id="backBtn" onclick="goBack()" disabled>← Back</button>
+            <input class="search" id="q" placeholder="Search folders / documents…" oninput="filterList()" />
+          </div>
+
+          <div class="panelBody">
+            <div class="list" id="explList"></div>
+          </div>
+        </div>
+
+        <!-- Reader -->
+        <div class="panel">
+          <div class="panelHead">
+            <h3>Document View</h3>
+            <span class="pill" id="viewPill">Ready</span>
+          </div>
+
+          <div class="panelBody" id="reader">
+            <? if (denied) { ?>
+              <div class="alert"><?= denied ?></div>
+            <? } ?>
+            <!-- Views injected by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <main id="app">
-    <section class="hero">
-      <div class="title-container" id="title">
-        <span class="fly-left">SchoolConnect</span>
-        <span class="fly-right">@SMKG</span>
-      </div>
-      <p style="opacity: 0.5; margin-top: 1px;">Pengurusan Dashboard Digital Sekolah Transformasi, Capaian di Jari Anda!</p>
-    </section>
-
-    <div id="card-container" class="grid"></div>
-  </main>
-
   <script>
-    // Comes from render_("Index", { serviceUrl })
-    const serviceUrl = "<?= serviceUrl ?>";
+    // ===== Demo-safe fallback (works even if GAS doesn't render vars) =====
+    const DEMO = { username: "Demo User", role: "Pentadbir" };
 
-    // ✅ IMPORTANT:
-    // Store ONLY querystrings here (NOT full URLs)
-    const portals = [
-      {
-        title: "Akademik",
-        qs: "page=login&section=akademik",
-        desc: "Pengurusan kurikulum & bilik darjah.",
-        icon: "🎓"
-      },
-      {
-        title: "MMI",
-        qs: "page=mmi",
-        desc: "Memaksimakan Masa Instruktional.",
-        icon: "👥"
-      },
-      {
-        title: "GURU CEMERLANG",
-        qs: "page=gc",
-        desc: "Menginspirasi Generasi, Mencipta Masa Depan.",
-        icon: "🏆"
-      }
-    ];
-
-    // ✅ Option B: force TOP navigation and always use the real webapp URL
-    function goTop(qs) {
-      if (!qs) return;
-      const url = serviceUrl + "?" + qs;
-      window.top.location.href = url;
+    // If the page still contains "<?= username ?>" literal, we are NOT in GAS render mode
+    function isTemplateLiteralStillThere() {
+      const html = document.documentElement.innerHTML;
+      return html.includes("<?= username ?>") || html.includes("<?= role ?>");
     }
 
-    function escAttr(s) {
-      return String(s).replace(/&/g, "&amp;")
-                      .replace(/"/g, "&quot;")
-                      .replace(/</g, "&lt;")
-                      .replace(/>/g, "&gt;");
+    function patchDemoUserIfNeeded(){
+      if(!isTemplateLiteralStillThere()) return;
+      const nameEl = document.getElementById("uName");
+      const roleEl = document.getElementById("uRole");
+      if(nameEl) nameEl.textContent = DEMO.username;
+      if(roleEl) roleEl.textContent = DEMO.role;
+      window.__WELCOME_NAME__ = DEMO.username;
     }
 
-    function renderCards() {
-      const html = portals.map(item => {
-        const enabled = !!item.qs;
-        const cardClass = enabled ? "card" : "card disabled";
-        const safeTitle = escAttr(item.title);
-        const safeDesc  = escAttr(item.desc);
-        const safeIcon  = escAttr(item.icon);
+    // ===== App state =====
+    const state = {
+      section: "home",
+      stack: [],
+      mode: "home",
+      key: "",
+      crumbs: ["Portal", "Dashboard"],
+      activeId: "",
+      filter: ""
+    };
 
-        return `
-          <div class="${cardClass}" ${enabled ? `onclick="goTop('${escAttr(item.qs)}')"` : ""}>
-            <div style="font-size: 2rem; margin-bottom: 5px;">${safeIcon}</div>
-            <h3>${safeTitle}</h3>
-            <p>${safeDesc}</p>
+    // ===== Data (UI sample) =====
+    const DATA = {
+      home: {
+        explorer: [
+          { id:"quick_perdana", icon:"🎓", title:"Go to Perdana", sub:"Jump to modules", count:"→", tag:"Shortcut", action: () => selectSection("perdana") },
+          { id:"quick_bb", icon:"📁", title:"Bidang Bahasa", sub:"6 folders • 24 documents", count:"24", tag:"Popular", action: () => openBB() },
+          { id:"recent", icon:"🕘", title:"Recent Documents", sub:"Last opened items", count:"6", tag:"Recent", action: () => openRecent() },
+        ]
+      },
+
+      perdana: {
+        explorer: [
+          { id:"perdana_bb", icon:"📁", title:"Bidang Bahasa", sub:"6 folders • 24 documents", count:"24", tag:"Folders", action: () => openBB() },
+          { id:"perdana_sains", icon:"📁", title:"Sains & Matematik", sub:"Modules pending", count:"—", tag:"Soon", action: () => showReader("placeholder","Sains & Matematik","Modules pending…") },
+          { id:"perdana_sosial", icon:"📁", title:"Sains Sosial", sub:"Modules pending", count:"—", tag:"Soon", action: () => showReader("placeholder","Sains Sosial","Modules pending…") },
+          { id:"perdana_tvet", icon:"📁", title:"TVET", sub:"Modules pending", count:"—", tag:"Soon", action: () => showReader("placeholder","TVET","Modules pending…") },
+        ]
+      },
+
+      bbFolders: [
+        { id:"bb_pengurusan", icon:"📁", title:"Pengurusan Am", sub:"Carta • DSKP • RPH • Profil", count:"12", tag:"Core", action: () => openBBFolder("pengurusan") },
+        { id:"bb_pekeliling", icon:"📁", title:"Pekeliling", sub:"SPI & rujukan dasar", count:"4", tag:"Policy", action: () => openBBFolder("pekeliling") },
+        { id:"bb_mesyuarat", icon:"📁", title:"Mesyuarat", sub:"Surat panggilan & minit", count:"8", tag:"Meetings", action: () => openBBFolder("mesyuarat") },
+        { id:"bb_pentaksiran", icon:"📁", title:"Pentaksiran", sub:"Headcount • Post mortem • PBD", count:"10", tag:"Assessment", action: () => openBBFolder("pentaksiran") },
+        { id:"bb_strategik", icon:"📁", title:"Perancangan Strategik", sub:"Pelan taktikal & operasi", count:"6", tag:"Plan", action: () => openBBFolder("strategik") },
+        { id:"bb_kewangan", icon:"📁", title:"Kewangan", sub:"PCG • Nota minta • Invois", count:"5", tag:"Finance", action: () => openBBFolder("kewangan") },
+      ],
+
+      recentDocs: [
+        { id:"r1", icon:"📄", title:"SPI Bil 4/1986", sub:"Pekeliling • Panitia Mata Pelajaran", count:"PDF", tag:"Recent", action: () => { openBB(); openBBFolder("pekeliling"); } },
+        { id:"r2", icon:"📄", title:"DSKP Tingkatan 4", sub:"Pengurusan Am • DSKP", count:"PDF", tag:"Recent", action: () => { openBB(); openBBFolder("pengurusan"); } },
+        { id:"r3", icon:"📄", title:"Minit Mesyuarat Panitia 1", sub:"Mesyuarat • Minit", count:"DOC", tag:"Recent", action: () => { openBB(); openBBFolder("mesyuarat"); } },
+      ],
+    };
+
+    // ===== Helpers =====
+    function setCrumbs(parts){
+      state.crumbs = parts;
+      const el = document.getElementById("crumbs");
+      el.innerHTML = "";
+      parts.forEach((p, i) => {
+        const b = document.createElement("button");
+        b.className = "crumb";
+        b.type = "button";
+        b.textContent = p;
+        b.onclick = () => crumbJump(i);
+        el.appendChild(b);
+        if(i < parts.length - 1){
+          const s = document.createElement("span");
+          s.className = "crumbSep";
+          s.textContent = "›";
+          el.appendChild(s);
+        }
+      });
+
+      const sub = document.getElementById("sidebarSub");
+      if(sub) sub.textContent = parts.slice(1).join(" ▸ ");
+    }
+
+    function crumbJump(i){
+      if(i <= 1){ selectSection("home"); return; }
+      const name = state.crumbs[i];
+      if(name === "Perdana") selectSection("perdana");
+      if(name === "Bidang Bahasa") openBB();
+    }
+
+    function setActiveNav(section){
+      document.querySelectorAll(".navBtn[data-section]").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-section") === section);
+      });
+    }
+
+    function setExplorerLabel(text){ document.getElementById("explPill").textContent = text; }
+    function setViewLabel(text){ document.getElementById("viewPill").textContent = text; }
+
+    function renderExplorer(items){
+      const list = document.getElementById("explList");
+      list.innerHTML = "";
+      items.forEach(it => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.dataset.id = it.id;
+        div.onclick = () => {
+          state.activeId = it.id;
+          highlightActiveExplorer();
+          it.action && it.action();
+        };
+
+        div.innerHTML = `
+          <div class="itemLeft">
+            <div class="itemIco">${it.icon || "📁"}</div>
+            <div class="itemText">
+              <b>${it.title}</b>
+              <span>${it.sub || ""}</span>
+            </div>
+          </div>
+          <div class="itemRight">
+            <span class="count">${it.count ?? "—"}</span>
+            ${it.tag ? `<span class="tag">${it.tag}</span>` : ``}
           </div>
         `;
-      }).join("");
-
-      document.getElementById("card-container").innerHTML = html;
+        list.appendChild(div);
+      });
+      highlightActiveExplorer();
+      filterList();
     }
 
-    document.addEventListener('mousemove', (e) => {
-      const leftPart = document.querySelector('.fly-left');
-      const rightPart = document.querySelector('.fly-right');
+    function highlightActiveExplorer(){
+      document.querySelectorAll("#explList .item").forEach(el => {
+        el.classList.toggle("active", el.dataset.id === state.activeId);
+      });
+    }
 
-      const x = (window.innerWidth / 2 - e.pageX) / 50;
-      const y = (window.innerHeight / 2 - e.pageY) / 50;
-      const transformStr = `rotateY(${x}deg) rotateX(${y}deg)`;
+    function filterList(){
+      const q = (document.getElementById("q").value || "").trim().toLowerCase();
+      state.filter = q;
+      document.querySelectorAll("#explList .item").forEach(el => {
+        const txt = el.textContent.toLowerCase();
+        el.style.display = txt.includes(q) ? "" : "none";
+      });
+    }
 
-      leftPart.style.transform = transformStr;
-      rightPart.style.transform = transformStr;
+    function setBackEnabled(v){
+      document.getElementById("backBtn").disabled = !v;
+    }
 
-      const mouseXPercentage = (e.clientX / window.innerWidth) * 100;
-      leftPart.style.backgroundPosition = `${mouseXPercentage}% center`;
-      rightPart.style.backgroundPosition = `${mouseXPercentage}% center`;
+    function pushStack(mode, key, label){
+      state.stack.push({ mode, key, label });
+      setBackEnabled(state.stack.length > 0);
+    }
+
+    function goBack(){
+      if(state.stack.length === 0) return;
+      const prev = state.stack.pop();
+      setBackEnabled(state.stack.length > 0);
+
+      if(prev.mode === "perdana") selectSection("perdana", true);
+      else if(prev.mode === "bb") openBB(true);
+      else if(prev.mode === "home") selectSection("home", true);
+    }
+
+    // ===== Reader views =====
+    function showReader(view, title, subtitle, html){
+      const r = document.getElementById("reader");
+
+      if(view === "home"){
+        const nm = window.__WELCOME_NAME__ || "<?= username ?>";
+        r.innerHTML = `
+          <div class="doc">
+            <div class="docTitle">Welcome back, ${nm}.</div>
+            <div class="docSub">
+              Use the left navigation to open modules. Explorer shows folders & documents.
+            </div>
+
+            <div class="heroGrid">
+              <div class="heroCard">
+                <h4>Quick Actions</h4>
+                <p>Jump into Perdana or open Bidang Bahasa in one click.</p>
+                <div class="tiles" style="margin-top:10px;">
+                  <div class="tile" onclick="selectSection('perdana')">
+                    <b>Open Perdana</b><span>Modules & panitia</span>
+                  </div>
+                  <div class="tile" onclick="openBB()">
+                    <b>Bidang Bahasa</b><span>6 folders • 24 docs</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="heroCard">
+                <h4>Recent</h4>
+                <p class="small muted">Last opened items (sample)</p>
+                <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+                  <div class="tile" onclick="openBBFolder('pekeliling')"><b>SPI Bil 4/1986</b><span>Pekeliling</span></div>
+                  <div class="tile" onclick="openBBFolder('pengurusan')"><b>DSKP Tingkatan 4</b><span>Pengurusan Am</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="heroCard" style="margin-top:12px;">
+              <h4>How users navigate</h4>
+              <p>1) Select a section → 2) Choose folder/doc → 3) Read/open links.</p>
+            </div>
+          </div>
+        `;
+        setViewLabel("Dashboard");
+        return;
+      }
+
+      if(view === "placeholder"){
+        r.innerHTML = `
+          <div class="doc">
+            <div class="docTitle">${title || "Coming soon"}</div>
+            <div class="docSub">${subtitle || "No content available yet."}</div>
+            <div class="heroCard">
+              <h4>Placeholder</h4>
+              <p>This is a complete UI sample. You can later replace placeholders with real content.</p>
+            </div>
+          </div>
+        `;
+        setViewLabel(title || "Placeholder");
+        return;
+      }
+
+      r.innerHTML = `
+        <div class="doc">
+          <div class="docTitle">${title || ""}</div>
+          <div class="docSub">${subtitle || ""}</div>
+          ${html || ""}
+        </div>
+      `;
+      setViewLabel(title || "Document");
+    }
+
+    // ===== Navigation flows =====
+    function selectSection(section, silent){
+      state.section = section;
+      state.mode = section;
+      state.activeId = "";
+
+      if(!silent){
+        state.stack = [];
+        setBackEnabled(false);
+        document.getElementById("q").value = "";
+      }
+
+      setActiveNav(section);
+
+      if(section === "home"){
+        setCrumbs(["Portal","Dashboard"]);
+        setExplorerLabel("Dashboard");
+        renderExplorer(DATA.home.explorer);
+        showReader("home");
+        return;
+      }
+
+      if(section === "perdana"){
+        setCrumbs(["Portal","Perdana"]);
+        setExplorerLabel("Perdana");
+        renderExplorer(DATA.perdana.explorer);
+        showReader("placeholder","Perdana","Choose a module from Explorer.");
+        return;
+      }
+
+      // Other sections
+      setCrumbs(["Portal", titleCase(section)]);
+      setExplorerLabel(titleCase(section));
+      renderExplorer([
+        { id:"none", icon:"ℹ️", title:"No items yet", sub:`Explorer items for ${titleCase(section)} are not defined in this sample.`, count:"—", tag:"Info",
+          action: () => showReader("placeholder", titleCase(section), "No sample content yet.") }
+      ]);
+      showReader("placeholder", titleCase(section), "No sample content yet.");
+    }
+
+    function openRecent(){
+      pushStack("home","","Dashboard");
+      setCrumbs(["Portal","Dashboard","Recent Documents"]);
+      setExplorerLabel("Recent");
+      renderExplorer(DATA.recentDocs);
+      showReader("placeholder","Recent Documents","Sample list of recently opened items.");
+    }
+
+    function openBB(silent){
+      if(!silent) pushStack("perdana","","Perdana");
+      state.mode = "bb";
+      state.activeId = "";
+      document.getElementById("q").value = "";
+
+      setCrumbs(["Portal","Perdana","Bidang Bahasa"]);
+      setExplorerLabel("Bidang Bahasa");
+      renderExplorer(DATA.bbFolders);
+      showReader("placeholder","Bidang Bahasa","Choose a folder from Explorer.");
+    }
+
+    function openBBFolder(key){
+      if(state.mode !== "bb") openBB();
+      const idMap = {
+        pengurusan:"bb_pengurusan",
+        pekeliling:"bb_pekeliling",
+        mesyuarat:"bb_mesyuarat",
+        pentaksiran:"bb_pentaksiran",
+        strategik:"bb_strategik",
+        kewangan:"bb_kewangan"
+      };
+      state.activeId = idMap[key] || "";
+      highlightActiveExplorer();
+
+      const labelMap = {
+        pengurusan:"Pengurusan Am",
+        pekeliling:"Pekeliling",
+        mesyuarat:"Mesyuarat",
+        pentaksiran:"Pentaksiran",
+        strategik:"Perancangan Strategik",
+        kewangan:"Kewangan"
+      };
+      const label = labelMap[key] || key;
+
+      setCrumbs(["Portal","Perdana","Bidang Bahasa", label]);
+      showReader("placeholder","Bidang Bahasa", `Folder: ${label}`, "Folder content placeholder (your existing long HTML blocks can be pasted back here).");
+    }
+
+    function titleCase(s){
+      return (s||"").charAt(0).toUpperCase() + (s||"").slice(1);
+    }
+
+    // ===== Keyboard shortcuts =====
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey){
+        e.preventDefault();
+        document.getElementById("q").focus();
+        return;
+      }
+      if(e.key === "Escape"){
+        if(!document.getElementById("backBtn").disabled) goBack();
+      }
     });
 
-    renderCards();
+    // ===== Init =====
+    patchDemoUserIfNeeded();
+    selectSection("home");
   </script>
-
-  <center>~ SMK GUNSANAD BERABIS CEMERLANG ~</center>
 </body>
 </html>
