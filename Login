@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+  window.info = <?= JSON.stringify(info || {}) ?>;
+    const info = window.info; // <-- this line stops "info is not defined"
+</script>
+
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Log Masuk</title>
+
+  <style>
+    :root{
+      --bg:#f8f9fa;
+      --text:#212529;
+      --accent:#dee2e6;
+      --card-bg:#ffffff;
+      --primary-blue:#4a90e2;
+    }
+
+    body, html{
+      margin:0;
+      padding:0;
+      height:100%;
+      background:var(--bg);
+      font-family:'Inter', -apple-system, sans-serif;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .card{
+      background:var(--card-bg);
+      padding:2.5rem;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.03);
+      border:1px solid rgba(0,0,0,0.05);
+      width:100%;
+      max-width:400px;
+      box-sizing:border-box;
+    }
+
+    .input-group{ margin-bottom:1.2rem; }
+
+    .input-group label{
+      display:block;
+      font-size:0.85rem;
+      font-weight:600;
+      margin-bottom:0.5rem;
+      opacity:0.8;
+    }
+
+    .input-group input{
+      width:100%;
+      padding:12px 15px;
+      border:1px solid var(--accent);
+      border-radius:10px;
+      background:#fdfdfd;
+      font-family:inherit;
+      box-sizing:border-box;
+      outline:none;
+    }
+
+    .input-group input:focus{
+      border-color:var(--primary-blue);
+      box-shadow:0 0 0 3px rgba(74,144,226,0.15);
+    }
+
+    .login-btn{
+      width:100%;
+      padding:14px;
+      background:var(--primary-blue);
+      color:#fff;
+      border:none;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      margin-top:1rem;
+    }
+
+    .login-btn:hover{ filter:brightness(0.97); }
+
+    footer{
+      margin-top:2rem;
+      opacity:0.4;
+      font-size:0.8rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <section id="login-section">
+    <div class="card">
+      <h3 style="margin:0 0 1.5rem 0; color:var(--primary-blue); text-align:center;">
+        Portal Log Masuk
+      </h3>
+
+      <? if (msg) { ?>
+        <div style="margin-bottom:1rem; color:var(--primary-blue); font-size:0.9rem; text-align:center;">
+          <?= msg ?>
+        </div>
+      <? } ?>
+
+      <? if (error) { ?>
+        <div style="margin-bottom:1rem; color:#e74c3c; font-size:0.9rem; text-align:center;">
+          <?= error ?>
+        </div>
+      <? } ?>
+
+<form method="post" action="<?= serviceUrl ?>" target="_top">
+  <input type="hidden" name="page" value="login">
+  <input name="username" required>
+  <input name="password" type="password" required>
+  <button type="submit">Login</button>
+</form>
+
+    </div>
+  </section>
+
+  <footer>~ SMK GUNSANAD BERABIS CEMERLANG ~</footer>
+
+</body>
+</html>
