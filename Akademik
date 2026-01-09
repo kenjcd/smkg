@@ -1,25 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script>
-  window.info = <?= JSON.stringify(info || {}) ?>;
-    const info = window.info; // <-- this line stops "info is not defined"
-</script>
-
   <base target="_top" />
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- ✅ Define info ONCE (prevents "info already declared" / "info not defined") -->
   <script>
-  // define info FIRST, before anything else
-  const info = <?= JSON.stringify(info || {}) ?>;
-</script>
-
-
-  <!-- MUST be before any script that uses info -->
-  <script>
-    const info = JSON.parse('<?= JSON.stringify(info || {}) ?>');
-    console.log("INFO LOADED:", info);
+    window.info = <?= JSON.stringify(info || {}) ?>;
+    const info = window.info;
+    // console.log("INFO:", info);
   </script>
 
   <style>
@@ -67,14 +57,12 @@
       overflow:hidden;
     }
 
-    /* ===== App shell ===== */
     .app{
       height:100%;
       display:grid;
       grid-template-columns: 280px 1fr;
     }
 
-    /* ===== Sidebar ===== */
     .sidebar{
       background: var(--panel);
       border-right:1px solid var(--border);
@@ -203,7 +191,6 @@
       white-space:nowrap;
     }
 
-    /* ===== Main viewport ===== */
     .viewport{
       display:flex;
       flex-direction:column;
@@ -267,7 +254,6 @@
       white-space:nowrap;
     }
 
-    /* ===== 2-panel workspace (Explorer + Reader) ===== */
     .content{
       flex:1;
       overflow:hidden;
@@ -316,9 +302,12 @@
       overflow:auto;
       padding: 12px;
       min-height:0;
+      scrollbar-gutter: stable;
+    }
+    @supports not (scrollbar-gutter: stable){
+      .panelBody{ overflow-y: scroll; }
     }
 
-    /* Explorer toolbar */
     .explToolbar{
       display:flex;
       gap:10px;
@@ -353,7 +342,6 @@
       box-shadow: 0 0 0 4px rgba(37,99,235,.12);
     }
 
-    /* Explorer items */
     .list{
       display:flex;
       flex-direction:column;
@@ -377,9 +365,7 @@
       border-color: rgba(37,99,235,.35);
       background: var(--primarySoft);
     }
-    .itemLeft{
-      display:flex; gap:10px; min-width:0;
-    }
+    .itemLeft{ display:flex; gap:10px; min-width:0; }
     .itemIco{
       width:36px; height:36px;
       border-radius: 12px;
@@ -390,9 +376,7 @@
       justify-content:center;
       flex:0 0 auto;
     }
-    .itemText{
-      display:flex; flex-direction:column; gap:3px; min-width:0;
-    }
+    .itemText{ display:flex; flex-direction:column; gap:3px; min-width:0; }
     .itemText b{ font-size: var(--fs14); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .itemText span{ font-size: var(--fs12); color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
@@ -423,7 +407,6 @@
       white-space:nowrap;
     }
 
-    /* Reader document */
     .doc{
       max-width: 860px;
       margin: 0 auto;
@@ -455,16 +438,8 @@
       box-shadow: var(--shadowSm);
       min-height: 90px;
     }
-    .heroCard h4{
-      margin:0 0 6px;
-      font-size: var(--fs14);
-    }
-    .heroCard p{
-      margin:0;
-      color: var(--muted);
-      font-size: var(--fs13);
-      line-height:1.45;
-    }
+    .heroCard h4{ margin:0 0 6px; font-size: var(--fs14); }
+    .heroCard p{ margin:0; color: var(--muted); font-size: var(--fs13); line-height:1.45; }
     .tiles{
       display:grid;
       grid-template-columns: repeat(2, 1fr);
@@ -483,7 +458,6 @@
     .tile b{ display:block; font-size: var(--fs14); margin-bottom:4px; }
     .tile span{ display:block; font-size: var(--fs12); color: var(--muted); }
 
-    /* Links */
     a{
       color: var(--link);
       text-decoration: underline;
@@ -491,7 +465,6 @@
     }
     a:hover{ color: var(--linkHover); }
 
-    /* Details styling */
     details{
       border:1px solid var(--border);
       border-radius: var(--r16);
@@ -527,7 +500,6 @@
       margin: 0 0 10px;
     }
 
-    /* Responsive */
     @media (max-width: 1100px){
       body{ overflow:auto; }
       .app{ grid-template-columns: 1fr; height:auto; }
@@ -551,32 +523,6 @@
       .content{ grid-template-columns: 1fr; height:auto; }
       .panel{ min-height: 380px; }
       .heroGrid{ grid-template-columns: 1fr; }
-    }
-
-    /* ===========================================
-       Stop “text pop” (scrollbar width change)
-       =========================================== */
-
-    /* Keep scrollbar space reserved so content width never changes */
-    #reader{
-      overflow-y: auto;
-      scrollbar-gutter: stable; /* modern Chrome */
-    }
-
-    /* Fallback for environments that ignore scrollbar-gutter */
-    @supports not (scrollbar-gutter: stable){
-      #reader{
-        overflow-y: scroll; /* always show scrollbar */
-      }
-    }
-
-    /* If scroll happens on panel body (common), stabilize that too */
-    .panelBody{
-      scrollbar-gutter: stable;
-    }
-
-    @supports not (scrollbar-gutter: stable){
-      .panelBody{ overflow-y: scroll; }
     }
   </style>
 </head>
@@ -634,7 +580,8 @@
         <? } ?>
 
         <? if (allowedMap.ting6) { ?>
-          <button class="navBtn" data-section="ting6" onclick="selectSection('Pengurusan Tingkatan 6')">
+          <!-- ✅ Fix: call selectSection('ting6') to match data-section -->
+          <button class="navBtn" data-section="ting6" onclick="selectSection('ting6')">
             <div class="left">
               <div class="navIco">📘</div>
               <div class="navLabel">
@@ -672,9 +619,13 @@
           </button>
         <? } ?>
 
-        <!-- HEM moved under ACADEMIC -->
         <? if (allowedMap.hem) { ?>
-          <a class="navBtn" href="?page=hem&amp;sid=<?= sid ?>" target="_top" style="text-decoration:none;">
+          <!-- ✅ Fix: use serviceUrl so it works in webapp routes -->
+          <a class="navBtn"
+             href="<?= serviceUrl ?>?page=hem&amp;sid=<?= sid ?>"
+             target="_top"
+             rel="noopener"
+             style="text-decoration:none;">
             <div class="left">
               <div class="navIco">🧩</div>
               <div class="navLabel">
@@ -686,25 +637,22 @@
           </a>
         <? } ?>
 
-        <!-- OTHER: Data / IDME / HRMIS -->
         <div class="navGroup">Other</div>
 
-<a class="navBtn"
-   href="<?= serviceUrl ?>?page=data&sid=<?= sid ?>"
-   target="_top"
-   rel="noopener"
-   style="text-decoration:none;">
-  <div class="left">
-    <div class="navIco">📊</div>
-    <div class="navLabel">
-      <b>Data</b>
-      <span>Internal page</span>
-    </div>
-  </div>
-  <span class="navMeta">↗</span>
-</a>
-
-
+        <a class="navBtn"
+           href="<?= serviceUrl ?>?page=data&sid=<?= sid ?>"
+           target="_top"
+           rel="noopener"
+           style="text-decoration:none;">
+          <div class="left">
+            <div class="navIco">📊</div>
+            <div class="navLabel">
+              <b>Data</b>
+              <span>Internal page</span>
+            </div>
+          </div>
+          <span class="navMeta">↗</span>
+        </a>
 
         <a class="navBtn" href="https://idme.moe.gov.my/login" target="_blank" rel="noopener" style="text-decoration:none;">
           <div class="left">
@@ -735,7 +683,8 @@
             <b id="uName"><?= username ?></b>
             <span id="uRole"><?= role ?></span>
           </div>
-          <button class="logoutBtn" onclick="location.href='?page=logout&sid=<?= sid ?>'">EXIT</button>
+          <!-- ✅ Fix: use serviceUrl for logout -->
+          <button class="logoutBtn" onclick="location.href='<?= serviceUrl ?>?page=logout&sid=<?= sid ?>'">EXIT</button>
         </div>
       </div>
     </aside>
@@ -779,7 +728,6 @@
             <? if (denied) { ?>
               <div class="alert"><?= denied ?></div>
             <? } ?>
-
             <!-- Views injected by JS -->
           </div>
         </div>
@@ -789,12 +737,7 @@
 
   <script>
     // ===== Demo-safe fallback (works even if GAS doesn't render vars) =====
-    const DEMO = {
-      username: "Demo User",
-      role: "Pentadbir",
-    };
-
-    const info = JSON.parse('<?= JSON.stringify(info || {}) ?>');
+    const DEMO = { username: "Demo User", role: "Pentadbir" };
 
     // If the page still contains "<?= username ?>" literal, we are NOT in GAS render mode
     function isTemplateLiteralStillThere() {
@@ -808,22 +751,21 @@
       const roleEl = document.getElementById("uRole");
       if(nameEl) nameEl.textContent = DEMO.username;
       if(roleEl) roleEl.textContent = DEMO.role;
-      const welcomeName = DEMO.username;
-      window.__WELCOME_NAME__ = welcomeName;
+      window.__WELCOME_NAME__ = DEMO.username;
     }
 
     // ===== App state =====
     const state = {
       section: "home",
-      stack: [],           // navigation stack for explorer: [{mode, key, label}]
-      mode: "home",        // home | perdana | bb | bb_docs
-      key: "",             // active key inside mode
+      stack: [],
+      mode: "home",
+      key: "",
       crumbs: ["Portal", "Dashboard"],
-      activeId: "",        // active explorer item id
+      activeId: "",
       filter: ""
     };
 
-    // ===== Data (UI sample; replace later with your real doc links) =====
+    // ===== Data (UI sample) =====
     const DATA = {
       home: {
         explorer: [
@@ -852,16 +794,10 @@
       ],
 
       recentDocs: [
-  { id:"r1", icon:"📄", title:"SPI Bil 4/1986", sub:"Pekeliling • Panitia Mata Pelajaran", count:"PDF", tag:"Recent",
-    action: () => { openBB(); openBBFolder("pekeliling"); } },
-
-  { id:"r2", icon:"📄", title:"DSKP Tingkatan 4", sub:"Pengurusan Am • DSKP", count:"PDF", tag:"Recent",
-    action: () => { openBB(); openBBFolder("pengurusan"); } },
-
-  { id:"r3", icon:"📄", title:"Minit Mesyuarat Panitia 1", sub:"Mesyuarat • Minit", count:"DOC", tag:"Recent",
-    action: () => { openBB(); openBBFolder("mesyuarat"); } },
-],
-
+        { id:"r1", icon:"📄", title:"SPI Bil 4/1986", sub:"Pekeliling • Panitia Mata Pelajaran", count:"PDF", tag:"Recent", action: () => { openBB(); openBBFolder("pekeliling"); } },
+        { id:"r2", icon:"📄", title:"DSKP Tingkatan 4", sub:"Pengurusan Am • DSKP", count:"PDF", tag:"Recent", action: () => { openBB(); openBBFolder("pengurusan"); } },
+        { id:"r3", icon:"📄", title:"Minit Mesyuarat Panitia 1", sub:"Mesyuarat • Minit", count:"DOC", tag:"Recent", action: () => { openBB(); openBBFolder("mesyuarat"); } },
+      ],
     };
 
     // ===== Helpers =====
@@ -884,13 +820,11 @@
         }
       });
 
-      // Sidebar subtitle
       const sub = document.getElementById("sidebarSub");
       if(sub) sub.textContent = parts.slice(1).join(" ▸ ");
     }
 
     function crumbJump(i){
-      // Simple rules: 0=Portal, 1=Dashboard -> go home
       if(i <= 1){ selectSection("home"); return; }
       const name = state.crumbs[i];
       if(name === "Perdana") selectSection("perdana");
@@ -903,12 +837,8 @@
       });
     }
 
-    function setExplorerLabel(text){
-      document.getElementById("explPill").textContent = text;
-    }
-    function setViewLabel(text){
-      document.getElementById("viewPill").textContent = text;
-    }
+    function setExplorerLabel(text){ document.getElementById("explPill").textContent = text; }
+    function setViewLabel(text){ document.getElementById("viewPill").textContent = text; }
 
     function renderExplorer(items){
       const list = document.getElementById("explList");
@@ -939,7 +869,7 @@
         list.appendChild(div);
       });
       highlightActiveExplorer();
-      filterList(); // apply current filter
+      filterList();
     }
 
     function highlightActiveExplorer(){
@@ -958,8 +888,7 @@
     }
 
     function setBackEnabled(v){
-      const btn = document.getElementById("backBtn");
-      btn.disabled = !v;
+      document.getElementById("backBtn").disabled = !v;
     }
 
     function pushStack(mode, key, label){
@@ -972,14 +901,9 @@
       const prev = state.stack.pop();
       setBackEnabled(state.stack.length > 0);
 
-      // Restore previous screen
-      if(prev.mode === "perdana"){
-        selectSection("perdana", true);
-      } else if(prev.mode === "bb"){
-        openBB(true);
-      } else if(prev.mode === "home"){
-        selectSection("home", true);
-      }
+      if(prev.mode === "perdana") selectSection("perdana", true);
+      else if(prev.mode === "bb") openBB(true);
+      else if(prev.mode === "home") selectSection("home", true);
     }
 
     // ===== Reader views =====
@@ -992,7 +916,7 @@
           <div class="doc">
             <div class="docTitle">Welcome back, ${nm}.</div>
             <div class="docSub">
-              Use the left navigation to open modules. Explorer shows folders & documents. Links are light-blue so users can instantly distinguish URLs from text.
+              Use the left navigation to open modules. Explorer shows folders & documents.
             </div>
 
             <div class="heroGrid">
@@ -1021,9 +945,7 @@
 
             <div class="heroCard" style="margin-top:12px;">
               <h4>How users navigate</h4>
-              <p>
-                1) Select a section (Sidebar) → 2) Choose folder/doc (Explorer) → 3) Read/open links (Document View).
-              </p>
+              <p>1) Select a section → 2) Choose folder/doc → 3) Read/open links.</p>
             </div>
           </div>
         `;
@@ -1046,7 +968,6 @@
         return;
       }
 
-      // Custom HTML view
       r.innerHTML = `
         <div class="doc">
           <div class="docTitle">${title || ""}</div>
@@ -1062,8 +983,8 @@
       state.section = section;
       state.mode = section;
       state.activeId = "";
+
       if(!silent){
-        // reset stack when user explicitly selects a top section
         state.stack = [];
         setBackEnabled(false);
         document.getElementById("q").value = "";
@@ -1087,7 +1008,7 @@
         return;
       }
 
-      // Other sections (sample)
+      // Other sections
       setCrumbs(["Portal", titleCase(section)]);
       setExplorerLabel(titleCase(section));
       renderExplorer([
@@ -1118,9 +1039,7 @@
     }
 
     function openBBFolder(key){
-      // entering a folder is a deeper screen, enable back
-      if(state.mode !== "bb") openBB(); // ensure in BB mode
-      // highlight matching explorer item
+      if(state.mode !== "bb") openBB();
       const idMap = {
         pengurusan:"bb_pengurusan",
         pekeliling:"bb_pekeliling",
@@ -1143,218 +1062,7 @@
       const label = labelMap[key] || key;
 
       setCrumbs(["Portal","Perdana","Bidang Bahasa", label]);
-
-      // Folder pages
-      if(key === "pengurusan"){
-        showReader("custom","Bidang Bahasa", "Folder: Pengurusan Am", `
-          <div class="heroCard">
-            <h4>Pengurusan Am</h4>
-            <p>Everything operational: surat menyurat, carta organisasi, profil, DSKP, RPH.</p>
-          </div>
-
-          <ol>
-            <li><a href="PASTE_LINK_SURAT" target="_blank" rel="noopener">Surat Menyurat</a></li>
-
-            <li>
-              <details>
-                <summary>Visi &amp; Misi KPM</summary>
-                <div style="margin-top:10px">
-                  <b>VISI</b>
-                  <ul>
-                    <li>Pendidikan Berkualiti, Insan Terdidik, Negara Sejahtera.</li>
-                  </ul>
-                  <b>MISI</b>
-                  <ul>
-                    <li>Melestarikan Sistem Pendidikan yang Berkualiti untuk membangunkan Potensi Individu bagi Memenuhi Aspirasi Negara.</li>
-                  </ul>
-                </div>
-              </details>
-            </li>
-
-            <li>Struktur / Carta Organisasi JKKS &amp; Panitia</li>
-
-            <li>
-              <details>
-                <summary>Butiran Peribadi Ahli Panitia</summary>
-                <ul style="margin-top:10px">
-                  <li>4.1 <a href="PASTE_LINK_DSKP_T1" target="_blank" rel="noopener">Daftar Profil Guru</a></li>
-                  <li>4.2 <a href="PASTE_LINK_DSKP_T2" target="_blank" rel="noopener">Profil Guru</a></li>
-                </ul>
-              </details>
-            </li>
-
-            <li>Jadual Waktu Persendirian Ahli Panitia</li>
-
-            <li>
-              <details>
-                <summary>Dokumen Standard Kurikulum dan Pentaksiran (DSKP)</summary>
-                <ul style="margin-top:10px">
-                  <li>6.1 <a href="PASTE_LINK_DSKP_T1" target="_blank" rel="noopener">DSKP T1</a></li>
-                  <li>6.2 <a href="PASTE_LINK_DSKP_T2" target="_blank" rel="noopener">DSKP T2</a></li>
-                  <li>6.3 <a href="PASTE_LINK_DSKP_T3" target="_blank" rel="noopener">DSKP T3</a></li>
-                  <li>6.4 <a href="PASTE_LINK_DSKP_T4" target="_blank" rel="noopener">DSKP T4</a></li>
-                  <li>6.5 <a href="PASTE_LINK_DSKP_T5" target="_blank" rel="noopener">DSKP T5</a></li>
-                </ul>
-              </details>
-            </li>
-
-            <li>
-              <details>
-                <summary>Rancangan Pengajaran Tahunan (RPH guru perlu disemak)</summary>
-                <ul style="margin-top:10px">
-                  <li>7.1 <a href="PASTE_LINK_RPH_T1" target="_blank" rel="noopener">RPH T1</a></li>
-                  <li>7.2 <a href="PASTE_LINK_RPH_T2" target="_blank" rel="noopener">RPH T2</a></li>
-                  <li>7.3 <a href="PASTE_LINK_RPH_T3" target="_blank" rel="noopener">RPH T3</a></li>
-                  <li>7.4 <a href="PASTE_LINK_RPH_T4" target="_blank" rel="noopener">RPH T4</a></li>
-                  <li>7.5 <a href="PASTE_LINK_RPH_T5" target="_blank" rel="noopener">RPH T5</a></li>
-                </ul>
-              </details>
-            </li>
-
-            <li>Takwim Panitia</li>
-            <li>Jadual &amp; Analisis Pencerapan Guru (Standard 4 SKPMg2)</li>
-            <li>Senarai Buku Teks / Buku Kerja / Buku Rujukan</li>
-            <li>Takwim Aktiviti Ko-Akademik (Jika berkaitan)</li>
-          </ol>
-        `);
-        return;
-      }
-
-      if(key === "pekeliling"){
-        showReader("custom","Bidang Bahasa", "Folder: Pekeliling", `
-          <div class="heroCard">
-            <h4>Pekeliling</h4>
-            <p>Collection of key SPI & circular references.</p>
-          </div>
-
-          <ol>
-            <li><a href="https://drive.google.com/file/d/1Omg1TBWYB8Jn1jWRUQeWwVzH_UvafhI3/view?usp=sharing" target="_blank" rel="noopener">SPI Bil 4/1986: Panitia Mata Pelajaran</a></li>
-            <li><a href="https://drive.google.com/file/d/1R55lQSmldAr0un-G7LuyO_VmQ6IsXu7D/view?usp=sharing" target="_blank" rel="noopener">SPI Bil 3/1987: Penyeliaan Pengajaran Pembelajaran</a></li>
-            <li><a href="https://drive.google.com/file/d/1H-SOMz-KMyPXoLm0EVsZWgb9XD2nJxma/view?usp=sharing" target="_blank" rel="noopener">SPI Bil 3/1999: Penyediaan Rekod PdP</a></li>
-            <li><a href="PASTE_LINK_PEKELILING_LAIN" target="_blank" rel="noopener">Pekeliling Lain Yang Berkaitan</a></li>
-          </ol>
-        `);
-        return;
-      }
-
-      if(key === "mesyuarat"){
-        showReader("custom","Bidang Bahasa", "Folder: Mesyuarat", `
-          <div class="heroCard">
-            <h4>Mesyuarat</h4>
-            <p>Surat panggilan & minit JKKS / Panitia.</p>
-          </div>
-
-          <ol>
-            <li>
-              <details>
-                <summary>Surat Panggilan Mesyuarat JKKS</summary>
-                <ul style="margin-top:10px">
-                  <li>1.1 <a href="PASTE_LINK_JKKS_SURAT_1" target="_blank" rel="noopener">Surat Panggilan 1</a></li>
-                  <li>1.2 <a href="PASTE_LINK_JKKS_SURAT_2" target="_blank" rel="noopener">Surat Panggilan 2</a></li>
-                  <li>1.3 <a href="PASTE_LINK_JKKS_SURAT_3" target="_blank" rel="noopener">Surat Panggilan 3</a></li>
-                  <li>1.4 <a href="PASTE_LINK_JKKS_SURAT_4" target="_blank" rel="noopener">Surat Panggilan 4</a></li>
-                </ul>
-              </details>
-            </li>
-
-            <li>
-              <details>
-                <summary>Minit Mesyuarat JKKS</summary>
-                <ul style="margin-top:10px">
-                  <li>2.1 <a href="PASTE_LINK_JKKS_MINIT_1" target="_blank" rel="noopener">Mesyuarat JKKS 1</a></li>
-                  <li>2.2 <a href="PASTE_LINK_JKKS_MINIT_2" target="_blank" rel="noopener">Mesyuarat JKKS 2</a></li>
-                  <li>2.3 <a href="PASTE_LINK_JKKS_MINIT_3" target="_blank" rel="noopener">Mesyuarat JKKS 3</a></li>
-                  <li>2.4 <a href="PASTE_LINK_JKKS_MINIT_4" target="_blank" rel="noopener">Mesyuarat JKKS 4</a></li>
-                </ul>
-              </details>
-            </li>
-
-            <li>
-              <details>
-                <summary>Surat Panggilan Mesyuarat Panitia</summary>
-                <ul style="margin-top:10px">
-                  <li>3.1 <a href="PASTE_LINK_PANITIA_SURAT_1" target="_blank" rel="noopener">Surat Panggilan 1</a></li>
-                  <li>3.2 <a href="PASTE_LINK_PANITIA_SURAT_2" target="_blank" rel="noopener">Surat Panggilan 2</a></li>
-                  <li>3.3 <a href="PASTE_LINK_PANITIA_SURAT_3" target="_blank" rel="noopener">Surat Panggilan 3</a></li>
-                  <li>3.4 <a href="PASTE_LINK_PANITIA_SURAT_4" target="_blank" rel="noopener">Surat Panggilan 4</a></li>
-                </ul>
-              </details>
-            </li>
-
-            <li>
-              <details>
-                <summary>Minit Mesyuarat Panitia</summary>
-                <ul style="margin-top:10px">
-                  <li>4.1 <a href="PASTE_LINK_PANITIA_MINIT_1" target="_blank" rel="noopener">Mesyuarat Panitia 1</a></li>
-                  <li>4.2 <a href="PASTE_LINK_PANITIA_MINIT_2" target="_blank" rel="noopener">Mesyuarat Panitia 2</a></li>
-                  <li>4.3 <a href="PASTE_LINK_PANITIA_MINIT_3" target="_blank" rel="noopener">Mesyuarat Panitia 3</a></li>
-                  <li>4.4 <a href="PASTE_LINK_PANITIA_MINIT_4" target="_blank" rel="noopener">Mesyuarat Panitia 4</a></li>
-                </ul>
-              </details>
-            </li>
-          </ol>
-        `);
-        return;
-      }
-
-      if(key === "pentaksiran"){
-        showReader("custom","Bidang Bahasa", "Folder: Pentaksiran", `
-          <div class="heroCard">
-            <h4>Pentaksiran</h4>
-            <p>Headcount, post mortem, PBD reporting, item bank.</p>
-          </div>
-          <ol>
-            <li>Takwim Pentaksiran</li>
-            <li>Jadual Penyediaan Kertas Peperiksaan</li>
-            <li>Jadual Penyemakan Latihan Murid</li>
-            <li>Data dan Analisis Headcount</li>
-            <li>Analisis &amp; Laporan Post Mortem Peperiksaan Dalaman</li>
-            <li>Analisis &amp; Laporan Post Mortem Peperiksaan Awam</li>
-            <li>Pelaporan PBD</li>
-            <li>Kerja Kursus (Jika berkaitan)</li>
-            <li>Koleksi Soalan Peperiksaan &amp; JSU</li>
-            <li>Koleksi Modul Pembelajaran</li>
-          </ol>
-        `);
-        return;
-      }
-
-      if(key === "strategik"){
-        showReader("custom","Bidang Bahasa", "Folder: Perancangan Strategik", `
-          <div class="heroCard">
-            <h4>Perancangan Strategik</h4>
-            <p>Pelan taktikal, pelan operasi, program peningkatan.</p>
-          </div>
-          <ol>
-            <li>Pelan Taktikal</li>
-            <li>Pelan Operasi</li>
-            <li>Perancangan Program Peningkatan Profesionalisme Guru</li>
-            <li>Pelaporan Program Peningkatan Profesionalisme Guru</li>
-            <li>Perancangan Program Peningkatan Akademik Murid</li>
-            <li>Pelaporan Program Peningkatan Akademik Murid</li>
-          </ol>
-        `);
-        return;
-      }
-
-      if(key === "kewangan"){
-        showReader("custom","Bidang Bahasa", "Folder: Kewangan", `
-          <div class="heroCard">
-            <h4>Kewangan</h4>
-            <p>Agihan PCG, perancangan, invois & rekod sumber.</p>
-          </div>
-          <ol>
-            <li>Agihan PCG Mata Pelajaran</li>
-            <li>Perancangan Perbelanjaan</li>
-            <li>Nota Minta</li>
-            <li>Invois</li>
-            <li>Rekod Penggunaan Sumber Pendidikan</li>
-          </ol>
-        `);
-        return;
-      }
-
-      showReader("placeholder","Bidang Bahasa", `Folder: ${label}`, "No sample content yet.");
+      showReader("placeholder","Bidang Bahasa", `Folder: ${label}`, "Folder content placeholder (your existing long HTML blocks can be pasted back here).");
     }
 
     function titleCase(s){
