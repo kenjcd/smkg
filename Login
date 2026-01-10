@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-  window.info = <?= JSON.stringify(info || {}) ?>;
-    const info = window.info; // <-- this line stops "info is not defined"
-</script>
-
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,9 +95,9 @@
         Portal Log Masuk
       </h3>
 
-      <? if (msg) { ?>
+      <? if (info) { ?>
         <div style="margin-bottom:1rem; color:var(--primary-blue); font-size:0.9rem; text-align:center;">
-          <?= msg ?>
+          <?= info ?>
         </div>
       <? } ?>
 
@@ -112,13 +107,22 @@
         </div>
       <? } ?>
 
-<form method="post" action="<?= serviceUrl ?>" target="_top">
-  <input type="hidden" name="page" value="login">
-  <input name="username" required>
-  <input name="password" type="password" required>
-  <button type="submit">Login</button>
-</form>
+      <form method="post" action="<?= serviceUrl ?>" target="_top">
+        <input type="hidden" name="action" value="login">
+        <input type="hidden" name="section" value="<?= section ?>">
 
+        <div class="input-group">
+          <label>Nama Pengguna</label>
+          <input name="username" type="text" required placeholder="Username" autocomplete="username">
+        </div>
+
+        <div class="input-group">
+          <label>Kata Laluan</label>
+          <input name="password" type="password" required placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="login-btn">Log Masuk</button>
+      </form>
     </div>
   </section>
 
