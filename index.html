@@ -1,222 +1,391 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<script>
-  window.info = <?= JSON.stringify(info || {}) ?>;
-  var info = window.info || {};  // <-- var (not const) so it’s accessible everywhere
-</script>
-
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minimalist Dynamic Portal</title>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>School Portal</title>
+  <meta name="description" content="Role-based school portal (Firebase Auth)" />
   <style>
-    :root {
-      --bg: #f8f9fa;
-      --text: #212529;
-      --accent: #dee2e6;
-      --card-bg: #ffffff;
-      --primary-blue: #4a90e2;
+    :root{
+      --bg:#0b1220;
+      --card:#101b33;
+      --card2:#0f1830;
+      --text:#eaf0ff;
+      --muted:#aab7df;
+      --line:rgba(255,255,255,.08);
+      --accent:#7dd3fc;
+      --accent2:#a78bfa;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(125,211,252,.15), transparent 60%),
+                  radial-gradient(1000px 700px at 90% 0%, rgba(167,139,250,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+    .topbar{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;
+      padding:14px 16px;border:1px solid var(--line);border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(16,27,51,.9), rgba(15,24,48,.7));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      position: sticky; top: 12px; z-index: 10;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:38px;height:38px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(125,211,252,.9), rgba(167,139,250,.9));
+      display:grid;place-items:center;font-weight:900;color:#071023;
+      box-shadow: 0 10px 20px rgba(0,0,0,.25);
+    }
+    .brand h1{margin:0;font-size:15px;letter-spacing:.3px}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .chip{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      padding:8px 10px;border-radius:999px;
+      font-size:12px;color:var(--muted);
+      display:flex;align-items:center;gap:8px;
+    }
+    .btn{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:9px 12px;
+      border-radius:12px;
+      font-weight:600;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      text-decoration:none;
+      display:inline-flex;align-items:center;gap:8px;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18)}
+    .btn.primary{
+      border-color: rgba(125,211,252,.35);
+      background: rgba(125,211,252,.12);
+    }
+    .btn.danger{
+      border-color: rgba(251,113,133,.35);
+      background: rgba(251,113,133,.10);
     }
 
-    body, html {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      font-family: 'Inter', -apple-system, sans-serif;
-      color: var(--text);
-      overflow-x: hidden;
+    .hero{
+      margin-top:18px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(16,27,51,.6), rgba(15,24,48,.35));
+      padding:18px 16px;
+      box-shadow: var(--shadow);
     }
-
-    a { text-decoration: none; color: inherit; }
-    a:hover { text-decoration: none; }
-
-    .parallax-wrapper {
-      perspective: 10px;
-      height: 100vh;
-      overflow-x: hidden;
-      overflow-y: auto;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: -1;
+    .hero h2{margin:0;font-size:18px}
+    .hero p{margin:6px 0 0;color:var(--muted);line-height:1.45}
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:12px;
     }
-    .layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-    .bg-base { background: radial-gradient(circle at 50% 50%, #e9ecef 0%, #f8f9fa 100%); transform: translateZ(-10px) scale(2); }
-    .bg-accent { background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.15; transform: translateZ(-5px) scale(1.5); }
-
-    .hero {
-      padding-top: 15vh;
-      text-align: center;
-      perspective: 1000px;
+    @media (max-width: 980px){ .grid{grid-template-columns: repeat(2, minmax(0, 1fr));}}
+    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;}}
+    .card{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(16,27,51,.72), rgba(15,24,48,.55));
+      padding:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      overflow:hidden;
+      min-height: 112px;
     }
-    .title-container {
-      display: inline-flex;
-      gap: 15px;
-      font-size: clamp(3rem, 8vw, 5rem);
-      font-weight: 900;
-      letter-spacing: -2px;
-      overflow: hidden;
+    .card:hover{transform: translateY(-2px); border-color: rgba(255,255,255,.18); background: linear-gradient(180deg, rgba(16,27,51,.85), rgba(15,24,48,.62))}
+    .card a{color:inherit;text-decoration:none;display:flex;gap:12px}
+    .ico{
+      width:44px;height:44px;border-radius:16px;
+      display:grid;place-items:center;
+      font-size:20px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      flex:0 0 auto;
     }
-    .fly-left, .fly-right {
-      display: inline-block;
-      background: linear-gradient(90deg, var(--text) 0%, var(--primary-blue) 50%, var(--text) 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: transform 0.1s ease-out;
+    .meta{min-width:0}
+    .title{font-weight:800;margin:0;font-size:14px;letter-spacing:.2px}
+    .desc{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
+    .badge{
+      position:absolute;top:10px;right:10px;
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
     }
-    .fly-left { animation: flyInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1) both; }
-    .fly-right { animation: flyInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) both; }
-
-    @keyframes flyInLeft {
-      0% { opacity: 0; transform: translateX(-100px) skewX(20deg); filter: blur(10px); }
-      100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0); }
+    .badge.ok{border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.10); color: #b7f7dc}
+    .badge.lock{border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10); color: #ffe7ab}
+    .footnote{
+      margin-top:14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
     }
-    @keyframes flyInRight {
-      0% { opacity: 0; transform: translateX(100px) skewX(-20deg); filter: blur(10px); }
-      100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0); }
-    }
-
-    #app { padding: 0 10%; text-align: center; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 4rem;
-      padding-bottom: 5rem;
-    }
-
-    .card {
-      background: var(--card-bg);
-      padding: 2.5rem;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-      transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-      cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.05);
-      user-select: none;
-    }
-    .card:hover {
-      transform: translateY(-15px);
-      box-shadow: 0 25px 50px rgba(0,0,0,0.08);
-      border-color: var(--primary-blue);
-    }
-
-    .card.disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      filter: grayscale(0.2);
-    }
-    .card.disabled:hover {
-      transform: none;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-      border-color: rgba(0,0,0,0.05);
-    }
-
-    .card h3 { margin: 8px 0 8px; }
-    .card p { margin: 0; opacity: 0.75; }
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
   </style>
 </head>
 
 <body>
-  <div class="parallax-wrapper">
-    <div class="layer bg-base"></div>
-    <div class="layer bg-accent"></div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">SP</div>
+        <div>
+          <h1>School Portal</h1>
+          <p id="subText">Loading authentication…</p>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="chip" id="userChip">
+          <span>👤</span>
+          <span class="muted" id="userText">Not signed in</span>
+        </div>
+
+        <a class="btn primary" id="btnLogin" href="/login.html">🔐 Login</a>
+        <button class="btn danger hidden" id="btnLogout" type="button">🚪 Logout</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h2 id="heroTitle">Welcome</h2>
+      <p id="heroDesc">
+        Sign in to see the modules you are assigned. If you try to open modules by direct URL,
+        access will be checked again on the protected page.
+      </p>
+
+      <div class="grid" id="portalGrid">
+        <!-- Cards injected here -->
+      </div>
+
+      <div class="footnote">
+        <div><b>Admin note:</b> Roles are read from Firebase Auth token <span class="muted">(custom claims)</span>.</div>
+        <div class="muted">If you don’t set claims yet, you can optionally enable Firestore fallback in the JS (see code).</div>
+      </div>
+    </div>
   </div>
 
-  <main id="app">
-    <section class="hero">
-      <div class="title-container" id="title">
-        <span class="fly-left">SchoolConnect</span>
-        <span class="fly-right">@SMKG</span>
-      </div>
-      <p style="opacity: 0.5; margin-top: 1px;">Pengurusan Dashboard Digital Sekolah Transformasi, Capaian di Jari Anda!</p>
-    </section>
+  <!-- Firebase + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-    <div id="card-container" class="grid"></div>
-  </main>
+    // OPTIONAL: Firestore fallback for roles (only if you want it)
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  <script>
-    // Comes from render_("Index", { serviceUrl })
-    const serviceUrl = "<?= serviceUrl ?>";
+    /***********************
+     * 1) PUT YOUR CONFIG HERE
+     ***********************/
+    const firebaseConfig = {
+      apiKey: "PASTE_YOUR_API_KEY",
+      authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
+      projectId: "PASTE_YOUR_PROJECT_ID",
+      appId: "PASTE_YOUR_APP_ID"
+    };
 
-    // ✅ IMPORTANT:
-    // Store ONLY querystrings here (NOT full URLs)
-    const portals = [
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // If you want Firestore fallback:
+    const db = getFirestore(app);
+
+    /***********************
+     * 2) PORTALS (same look, role-gated)
+     ***********************/
+    const PORTALS = [
       {
+        key: "akademik",
         title: "Akademik",
-        qs: "page=login&section=akademik",
         desc: "Pengurusan kurikulum & bilik darjah.",
-        icon: "🎓"
+        icon: "🎓",
+        badge: "Protected",
+        requiredAnyRole: ["admin", "akademik"]
       },
       {
+        key: "mmi",
         title: "MMI",
-        qs: "page=mmi",
         desc: "Memaksimakan Masa Instruktional.",
-        icon: "👥"
+        icon: "👥",
+        badge: "Protected",
+        requiredAnyRole: ["admin", "mmi"]
       },
       {
-        title: "GURU CEMERLANG",
-        qs: "page=gc",
+        key: "gc",
+        title: "Guru Cemerlang",
         desc: "Menginspirasi Generasi, Mencipta Masa Depan.",
-        icon: "🏆"
+        icon: "🏆",
+        badge: "Protected",
+        requiredAnyRole: ["admin", "gc"]
       }
     ];
 
-    // ✅ Option B: force TOP navigation and always use the real webapp URL
-    function goTop(qs) {
-      if (!qs) return;
-      const url = serviceUrl + "?" + qs;
-      window.top.location.href = url;
+    // Where protected modules live
+    function moduleUrl(key){
+      // Your protected page should re-check auth+role too
+      return `/app.html?module=${encodeURIComponent(key)}`;
     }
 
-    function escAttr(s) {
-      return String(s).replace(/&/g, "&amp;")
-                      .replace(/"/g, "&quot;")
-                      .replace(/</g, "&lt;")
-                      .replace(/>/g, "&gt;");
+    /***********************
+     * 3) UI helpers
+     ***********************/
+    const el = (id) => document.getElementById(id);
+    const portalGrid = el("portalGrid");
+
+    function setSignedOutUI(){
+      el("subText").textContent = "Not signed in — please login to continue.";
+      el("userText").textContent = "Not signed in";
+      el("btnLogin").classList.remove("hidden");
+      el("btnLogout").classList.add("hidden");
+      el("heroTitle").textContent = "Welcome";
+      el("heroDesc").textContent =
+        "Sign in to see the modules you are assigned. Direct URLs will still be checked on protected pages.";
     }
 
-    function renderCards() {
-      const html = portals.map(item => {
-        const enabled = !!item.qs;
-        const cardClass = enabled ? "card" : "card disabled";
-        const safeTitle = escAttr(item.title);
-        const safeDesc  = escAttr(item.desc);
-        const safeIcon  = escAttr(item.icon);
+    function setSignedInUI(email, roleList){
+      el("subText").textContent = "Signed in. Your modules are filtered by role.";
+      el("userText").textContent = email || "Signed in";
+      el("btnLogin").classList.add("hidden");
+      el("btnLogout").classList.remove("hidden");
+      el("heroTitle").textContent = "Your Modules";
+      el("heroDesc").textContent =
+        `Visible modules are based on your roles: ${roleList.length ? roleList.join(", ") : "(none)"}.`;
+    }
 
-        return `
-          <div class="${cardClass}" ${enabled ? `onclick="goTop('${escAttr(item.qs)}')"` : ""}>
-            <div style="font-size: 2rem; margin-bottom: 5px;">${safeIcon}</div>
-            <h3>${safeTitle}</h3>
-            <p>${safeDesc}</p>
+    function clearGrid(){
+      portalGrid.innerHTML = "";
+    }
+
+    function makeCard(portal, isAllowed){
+      const card = document.createElement("div");
+      card.className = "card";
+      const badgeClass = isAllowed ? "badge ok" : "badge lock";
+      const badgeText = isAllowed ? "Allowed" : "No Access";
+
+      card.innerHTML = `
+        <div class="${badgeClass}">${badgeText}</div>
+        <a href="${isAllowed ? moduleUrl(portal.key) : "/login.html"}" ${isAllowed ? "" : 'aria-disabled="true"'} >
+          <div class="ico">${portal.icon}</div>
+          <div class="meta">
+            <p class="title">${portal.title}</p>
+            <p class="desc">${portal.desc}</p>
           </div>
-        `;
-      }).join("");
+        </a>
+      `;
 
-      document.getElementById("card-container").innerHTML = html;
+      if (!isAllowed){
+        card.style.opacity = "0.72";
+        card.addEventListener("click", (e) => {
+          // Force users to login if they click locked modules
+          e.preventDefault();
+          window.location.href = "/login.html";
+        });
+      }
+      return card;
     }
 
-    document.addEventListener('mousemove', (e) => {
-      const leftPart = document.querySelector('.fly-left');
-      const rightPart = document.querySelector('.fly-right');
+    function hasAnyRole(userRoles, requiredAnyRole){
+      if (!requiredAnyRole || !requiredAnyRole.length) return true;
+      const s = new Set(userRoles);
+      return requiredAnyRole.some(r => s.has(r));
+    }
 
-      const x = (window.innerWidth / 2 - e.pageX) / 50;
-      const y = (window.innerHeight / 2 - e.pageY) / 50;
-      const transformStr = `rotateY(${x}deg) rotateX(${y}deg)`;
+    /***********************
+     * 4) Get roles from custom claims (recommended)
+     *    Optionally fallback to Firestore /users/{uid}.roles = ["akademik","mmi"]
+     ***********************/
+    async function getRolesForUser(user){
+      // 4A: custom claims
+      const tokenResult = await user.getIdTokenResult(true);
+      const claims = tokenResult.claims || {};
 
-      leftPart.style.transform = transformStr;
-      rightPart.style.transform = transformStr;
+      // You can choose one convention:
+      // - claims.roles = ["admin","akademik"]
+      // - or boolean flags like claims.admin = true
+      let roles = [];
 
-      const mouseXPercentage = (e.clientX / window.innerWidth) * 100;
-      leftPart.style.backgroundPosition = `${mouseXPercentage}% center`;
-      rightPart.style.backgroundPosition = `${mouseXPercentage}% center`;
+      if (Array.isArray(claims.roles)) roles = claims.roles.slice();
+      else if (typeof claims.role === "string") roles = [claims.role];
+
+      // Also accept boolean flags
+      ["admin","akademik","mmi","gc"].forEach(r => {
+        if (claims[r] === true && !roles.includes(r)) roles.push(r);
+      });
+
+      // 4B: OPTIONAL Firestore fallback (if you haven’t built claims yet)
+      // Comment this whole block out if you only want claims.
+      if (!roles.length){
+        try{
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()){
+            const data = snap.data() || {};
+            if (Array.isArray(data.roles)) roles = data.roles.slice();
+          }
+        }catch(err){
+          // Ignore if rules block it or doc missing
+        }
+      }
+
+      return roles;
+    }
+
+    /***********************
+     * 5) Render
+     ***********************/
+    async function renderForUser(user){
+      clearGrid();
+
+      if (!user){
+        setSignedOutUI();
+        // show cards in locked state
+        PORTALS.forEach(p => portalGrid.appendChild(makeCard(p, false)));
+        return;
+      }
+
+      const roles = await getRolesForUser(user);
+      setSignedInUI(user.email, roles);
+
+      PORTALS.forEach(p => {
+        const allowed = hasAnyRole(roles, p.requiredAnyRole);
+        portalGrid.appendChild(makeCard(p, allowed));
+      });
+    }
+
+    /***********************
+     * 6) Wire up auth state + logout
+     ***********************/
+    el("btnLogout").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "/login.html";
     });
 
-    renderCards();
+    onAuthStateChanged(auth, (user) => {
+      renderForUser(user);
+    });
   </script>
-
-  <center>~ SMK GUNSANAD BERABIS CEMERLANG ~</center>
 </body>
 </html>
