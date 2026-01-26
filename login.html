@@ -3,195 +3,1017 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login • School Portal</title>
+  <title>Pengurusan Akademik</title>
+
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#101b33;
-      --text:#eaf0ff;
-      --muted:#aab7df;
-      --line:rgba(255,255,255,.10);
-      --accent:#7dd3fc;
-      --accent2:#a78bfa;
-      --bad:#fb7185;
-      --shadow: 0 12px 40px rgba(0,0,0,.40);
-      --radius: 18px;
+      --bg: #07080b;
+      --glass: rgba(12,14,18,.55);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --ease: cubic-bezier(.16,1,.3,1);
+      --shadow: 0 22px 65px rgba(0,0,0,.55);
+      --r: 22px;
     }
-    *{box-sizing:border-box}
-    body{
+
+    *{ box-sizing:border-box; }
+    html,body{
+      height:100%;
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background: radial-gradient(1200px 800px at 10% 10%, rgba(125,211,252,.15), transparent 60%),
-                  radial-gradient(1000px 700px at 90% 0%, rgba(167,139,250,.12), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:18px;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: var(--bg);
+      color: #fff;
+      overflow:hidden;
     }
-    .card{
-      width:min(460px, 100%);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(16,27,51,.85), rgba(15,24,48,.65));
-      box-shadow: var(--shadow);
-      padding:18px 16px;
+
+    /* ===== Background image ===== */
+    .bg{
+      position: fixed; inset:0; z-index:0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.62), rgba(0,0,0,.68)),
+        url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=2200&q=60");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.02) contrast(1.02);
+      transform: scale(1.02);
     }
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-    .logo{
-      width:42px;height:42px;border-radius:14px;
-      background: linear-gradient(135deg, rgba(125,211,252,.9), rgba(167,139,250,.9));
-      display:grid;place-items:center;font-weight:900;color:#071023;
+
+    /* ===== Morph canvas (SVG blobs) ===== */
+    .morphWrap{
+      position: fixed; inset:0; z-index: 1;
+      pointer-events:none;
+      opacity:.95;
+      mix-blend-mode: screen;
     }
-    h1{margin:0;font-size:16px}
-    p{margin:6px 0 0;color:var(--muted);line-height:1.45;font-size:13px}
-    form{margin-top:14px;display:grid;gap:10px}
-    label{font-size:12px;color:var(--muted)}
-    input{
-      width:100%;
-      padding:11px 12px;
-      border-radius: 12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      outline:none;
+    svg{ width:100%; height:100%; display:block; }
+
+    /* ===== Top bar ===== */
+    .topbar{
+      position: fixed; left:0; right:0; top:0;
+      height: 64px;
+      z-index: 10;
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 0 14px;
+      backdrop-filter: blur(16px);
+      background: rgba(10,12,16,.55);
+      border-bottom: 1px solid rgba(255,255,255,.12);
     }
-    input:focus{border-color: rgba(125,211,252,.45)}
-    .row{display:grid;gap:6px}
-    .btn{
-      cursor:pointer;
-      border:1px solid rgba(125,211,252,.35);
-      background: rgba(125,211,252,.12);
-      color: var(--text);
-      padding:11px 12px;
-      border-radius: 12px;
-      font-weight:800;
-      transition: transform .12s ease, background .12s ease;
-      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      font-weight: 820;
+      letter-spacing:.2px;
+      user-select:none;
     }
-    .btn:hover{transform: translateY(-1px); background: rgba(125,211,252,.16)}
-    .btn.secondary{
-      border-color: rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      font-weight:700;
+    .mark{
+      width: 34px; height:34px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), rgba(255,255,255,.05) 60%, rgba(255,255,255,.02));
+      display:flex; align-items:center; justify-content:center;
     }
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    .msg{
-      margin-top:10px;
-      padding:10px 12px;
+    .nav a{
+      display:inline-flex;
+      padding: 9px 11px;
       border-radius: 14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.90);
+      text-decoration:none;
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+    }
+    .nav a:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 16px 36px rgba(0,0,0,.22);
+    }
+
+    /* ===== Stage ===== */
+    .stage{
+      position: relative;
+      z-index: 5;
+      height: 100%;
+      padding-top: 64px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    /* ===== Layout ===== */
+    .cardShell{
+      width: min(1040px, 100%);
+      display:grid;
+      grid-template-columns: 380px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .tile{
+      border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(12,14,18,.40);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    /* left tile */
+    .launcher{
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      transform: translateY(10px);
+      opacity: 0;
+      animation: riseIn 720ms var(--ease) forwards;
+    }
+    @keyframes riseIn{ to{ transform: translateY(0); opacity:1; } }
+
+    .kicker{
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.70);
+    }
+    .title{
+      margin: 8px 0 10px;
+      font-size: 34px;
+      line-height: 1.06;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .desc{
+      margin: 0;
       color: var(--muted);
-      font-size:12.5px;
-      line-height:1.45;
-      display:none;
+      line-height: 1.55;
+      font-size: 15px;
     }
-    .msg.error{
-      border-color: rgba(251,113,133,.35);
-      background: rgba(251,113,133,.10);
-      color: #ffd0d7;
+
+    /* right panel */
+    .panel{
+      position: relative;
+      padding: 18px;
+      overflow:hidden;
+      transform: translateY(10px);
+      opacity: 0;
+      animation: riseIn 720ms var(--ease) forwards;
+      animation-delay: 120ms;
     }
-    .small{font-size:12px}
-    a{color: var(--accent); text-decoration:none}
-    a:hover{text-decoration:underline}
+
+    .panelContent{
+      position: relative;
+      z-index: 2;
+      padding-top: 0;
+      max-width: 70ch;
+    }
+
+    .panelHeadRow{
+      display:flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .panelH{
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.01em;
+    }
+
+    /* UX badge */
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.88);
+      font-size: 12px;
+      font-weight: 780;
+      letter-spacing: .01em;
+      user-select:none;
+      box-shadow: 0 14px 34px rgba(0,0,0,.14);
+      white-space: nowrap;
+    }
+    .badgeDot{
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.18);
+      opacity: .95;
+    }
+
+    .panelP{
+      margin: 0 0 12px;
+      color: rgba(255,255,255,.74);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ===== 6 Panel Cards Grid (RIGHT PANEL) ===== */
+    .panelGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .pCard{
+      position: relative;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      padding: 14px 14px 12px;
+      cursor: pointer;
+      overflow:hidden;
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+      box-shadow: 0 14px 40px rgba(0,0,0,.18);
+    }
+
+    .pCard:hover{
+      transform: translateY(-3px);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 18px 55px rgba(0,0,0,.28);
+    }
+
+    .pTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .pTitle{
+      margin: 0;
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: .02em;
+      color: rgba(255,255,255,.92);
+    }
+
+    .pSub{
+      margin: 8px 0 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(255,255,255,.70);
+    }
+
+    .pIco{
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.16), rgba(255,255,255,.05) 60%, rgba(255,255,255,.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
+      opacity: .95;
+    }
+
+    .pCard::after{
+      content:"";
+      position:absolute;
+      inset:-40% -40%;
+      background: radial-gradient(260px 120px at 20% 20%, rgba(255,255,255,.10), transparent 60%);
+      transform: rotate(12deg);
+      opacity: .85;
+      pointer-events:none;
+    }
+
+    /* ===== LEFT: Bidang accordion + mini glass pill buttons ===== */
+    .bidangWrap{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .bidang{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      border-radius: 18px;
+      overflow:hidden;
+    }
+
+    .bHeadBtn{
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      cursor:pointer;
+
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,.92);
+      text-align:left;
+
+      font-weight: 850;
+      font-size: 13px;
+      letter-spacing: .02em;
+
+      transition: background 220ms var(--ease);
+    }
+    .bHeadBtn:hover{
+      background: rgba(255,255,255,.06);
+    }
+
+    .bArrow{
+      width: 34px; height: 34px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
+      opacity: .95;
+      transform: rotate(0deg);
+      transition: transform 260ms var(--ease);
+      flex: 0 0 auto;
+    }
+
+    .bidang.open .bArrow{
+      transform: rotate(180deg);
+    }
+
+    .bBody{
+      max-height: 0px;
+      overflow:hidden;
+      transition: max-height 320ms var(--ease);
+      padding: 0 12px;
+    }
+
+    .bidang.open .bBody{
+      padding: 0 12px 12px;
+    }
+
+    /* one pill per row */
+    .pillRow{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    .pill{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      width: 100%;
+      justify-content:flex-start;
+
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.88);
+      text-decoration:none;
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .01em;
+
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease), outline-color 220ms var(--ease);
+      box-shadow: 0 14px 34px rgba(0,0,0,.14);
+      user-select:none;
+      outline: 1px solid transparent;
+    }
+
+    .pill:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    }
+
+    .pillDot{
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.16);
+      opacity: .95;
+      flex: 0 0 auto;
+    }
+
+    .pill.isActive{
+      background: rgba(255,255,255,.11);
+      outline-color: rgba(255,255,255,.22);
+    }
+
+    @media (max-width: 900px){
+      .cardShell{ grid-template-columns: 1fr; }
+      .panelGrid{ grid-template-columns: 1fr; }
+      html,body{ overflow:auto; }
+      .stage{ height:auto; padding-bottom: 24px; }
+    }
+
+    .foot{
+      position: fixed;
+      left: 14px;
+      bottom: 12px;
+      z-index: 8;
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      user-select:none;
+    }
+
+    /* tiny toast */
+    .toast{
+      position: fixed;
+      left: 14px;
+      top: 78px;
+      z-index: 20;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(12,14,18,.55);
+      backdrop-filter: blur(16px);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .01em;
+      box-shadow: 0 18px 55px rgba(0,0,0,.28);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events:none;
+      transition: opacity 260ms var(--ease), transform 260ms var(--ease);
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =========================================================
+       THEME TOGGLE (ADDED) - light mode overrides only
+       ========================================================= */
+    .nav{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+
+    /* make the toggle button look identical to the Back pill */
+    .nav .themeBtn{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 11px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.90);
+      cursor:pointer;
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+      font: inherit;
+      line-height: 1;
+    }
+    .nav .themeBtn:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 16px 36px rgba(0,0,0,.22);
+    }
+
+    /* LIGHT THEME: keep layout/animations intact, only recolor */
+    body.light{
+      background: #f6f7fb;
+      color: #0b1220;
+    }
+    body.light .bg{
+      background:
+        linear-gradient(to bottom, rgba(255,255,255,.72), rgba(255,255,255,.76)),
+        url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=2200&q=60");
+      filter: saturate(1.02) contrast(1.02);
+    }
+    body.light .morphWrap{
+      mix-blend-mode: multiply;
+      opacity: .78;
+    }
+    body.light .topbar{
+      background: rgba(246,247,251,.72);
+      border-bottom: 1px solid rgba(11,18,32,.12);
+    }
+    body.light .brand > div:last-child > div:first-child{
+      color: rgba(11,18,32,.92);
+    }
+    body.light .mark{
+      border: 1px solid rgba(11,18,32,.14);
+      background: radial-gradient(circle at 30% 25%, rgba(11,18,32,.10), rgba(11,18,32,.03) 60%, rgba(11,18,32,.01));
+      color: rgba(11,18,32,.86);
+    }
+
+    body.light .nav a,
+    body.light .nav .themeBtn{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(11,18,32,.06);
+      color: rgba(11,18,32,.88);
+    }
+    body.light .nav a:hover,
+    body.light .nav .themeBtn:hover{
+      background: rgba(11,18,32,.10);
+      box-shadow: 0 16px 36px rgba(11,18,32,.12);
+    }
+
+    body.light .tile{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(255,255,255,.55);
+      box-shadow: 0 22px 65px rgba(11,18,32,.12);
+    }
+
+    body.light .kicker{ color: rgba(11,18,32,.62); }
+    body.light .title{ color: rgba(11,18,32,.92); }
+    body.light .desc{ color: rgba(11,18,32,.70); }
+
+    body.light .badge{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(11,18,32,.06);
+      color: rgba(11,18,32,.88);
+      box-shadow: 0 14px 34px rgba(11,18,32,.10);
+    }
+    body.light .badgeDot{
+      border: 1px solid rgba(11,18,32,.18);
+      background: rgba(11,18,32,.18);
+    }
+    body.light .panelP{ color: rgba(11,18,32,.72); }
+
+    body.light .pCard{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(11,18,32,.05);
+      box-shadow: 0 14px 40px rgba(11,18,32,.10);
+    }
+    body.light .pCard:hover{
+      background: rgba(11,18,32,.08);
+      box-shadow: 0 18px 55px rgba(11,18,32,.14);
+    }
+    body.light .pTitle{ color: rgba(11,18,32,.92); }
+    body.light .pSub{ color: rgba(11,18,32,.70); }
+    body.light .pIco{
+      border: 1px solid rgba(11,18,32,.14);
+      background: radial-gradient(circle at 30% 25%, rgba(11,18,32,.10), rgba(11,18,32,.03) 60%, rgba(11,18,32,.01));
+    }
+    body.light .pCard::after{
+      background: radial-gradient(260px 120px at 20% 20%, rgba(11,18,32,.08), transparent 60%);
+      opacity: .65;
+    }
+
+    body.light .bidang{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(11,18,32,.04);
+    }
+    body.light .bHeadBtn{ color: rgba(11,18,32,.92); }
+    body.light .bHeadBtn:hover{ background: rgba(11,18,32,.06); }
+    body.light .bArrow{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(11,18,32,.05);
+    }
+
+    body.light .pill{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(11,18,32,.06);
+      color: rgba(11,18,32,.88);
+      box-shadow: 0 14px 34px rgba(11,18,32,.10);
+    }
+    body.light .pill:hover{
+      background: rgba(11,18,32,.10);
+      box-shadow: 0 18px 45px rgba(11,18,32,.12);
+    }
+    body.light .pillDot{
+      border: 1px solid rgba(11,18,32,.18);
+      background: rgba(11,18,32,.16);
+    }
+    body.light .pill.isActive{
+      background: rgba(11,18,32,.11);
+      outline-color: rgba(11,18,32,.22);
+    }
+
+    body.light .foot{ color: rgba(11,18,32,.62); }
+
+    body.light .toast{
+      border: 1px solid rgba(11,18,32,.14);
+      background: rgba(246,247,251,.80);
+      color: rgba(11,18,32,.86);
+      box-shadow: 0 18px 55px rgba(11,18,32,.14);
+    }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <div class="brand">
-      <div class="logo">SP</div>
-      <div>
-        <h1>School Portal Login</h1>
-        <p>Use your email & password. After login you’ll be redirected to your allowed modules.</p>
-      </div>
-    </div>
+  <div class="bg"></div>
 
-    <form id="loginForm">
-      <div class="row">
-        <label for="email">Email</label>
-        <input id="email" type="email" autocomplete="username" required placeholder="name@school.edu" />
-      </div>
-
-      <div class="row">
-        <label for="password">Password</label>
-        <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
-      </div>
-
-      <div class="actions">
-        <button class="btn" type="submit">🔐 Sign In</button>
-        <a class="btn secondary" href="/index.html">← Back</a>
-      </div>
-
-      <div id="msg" class="msg"></div>
-      <p class="small">
-        <span class="muted">Tip:</span> If you can login but see no modules, your roles are not set yet.
-      </p>
-    </form>
+  <!-- SVG morph overlay -->
+  <div class="morphWrap" aria-hidden="true">
+    <svg viewBox="0 0 1000 600" preserveAspectRatio="none">
+      <path id="blob1" fill="rgba(255,255,255,0.10)"></path>
+      <path id="blob2" fill="rgba(255,255,255,0.06)"></path>
+    </svg>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <div class="toast" id="toast">Selected</div>
 
-    /***********************
-     * 1) PUT YOUR CONFIG HERE
-     ***********************/
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVcU-r88-q57FgZsK0xwsY2oXlRagxZf8",
-      authDomain: "dashboard-smkg.firebaseapp.com",
-      projectId: "dashboard-smkg",
-      appId: "1:725047177734:web:53ceaeed2dd9b3da85c987"
-    };
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">◆</div>
+      <div>
+        <div>Schools</div>
+        <div style="font-size:12px; color:rgba(255,255,255,.62); font-weight:650;">Group Access Portal</div>
+      </div>
+    </div>
+    <div class="nav">
+      <!-- ADDED: theme toggle button -->
+      <button class="themeBtn" id="themeToggle" type="button" aria-label="Toggle theme">☀ Light</button>
+      <a href="../index.html">Back</a>
+    </div>
+  </header>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  <main class="stage">
+    <section class="cardShell">
 
-    const el = (id) => document.getElementById(id);
-    const msg = el("msg");
+      <!-- LEFT -->
+      <div class="tile launcher">
+        <div>
+          <div class="kicker">SCHOOLS MODULE</div>
+          <div class="title" id="scrambleTitle">Group Access Portal</div>
 
-    function showMsg(text, type){
-      msg.textContent = text;
-      msg.className = "msg" + (type === "error" ? " error" : "");
-      msg.style.display = "block";
+          <div class="desc">
+            <div class="bidangWrap" id="bidangWrap">
+
+              <!-- Bidang Bahasa -->
+              <div class="bidang">
+                <button class="bHeadBtn" type="button">
+                  <span>Bidang Bahasa</span>
+                  <span class="bArrow">⌄</span>
+                </button>
+                <div class="bBody">
+                  <div class="pillRow">
+                    <a class="pill" href="#" data-subject="bm"><span class="pillDot"></span>Bahasa Melayu</a>
+                    <a class="pill" href="#" data-subject="bi"><span class="pillDot"></span>Bahasa Inggeris</a>
+                    <a class="pill" href="#" data-subject="ba"><span class="pillDot"></span>Bahasa Arab</a>
+                    <a class="pill" href="#" data-subject="bkd"><span class="pillDot"></span>Kesusteraan Melayu</a>
+                    <a class="pill" href="#" data-subject="bkd"><span class="pillDot"></span>BKD</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bidang Sains Matematik -->
+              <div class="bidang">
+                <button class="bHeadBtn" type="button">
+                  <span>Bidang Sains Matematik</span>
+                  <span class="bArrow">⌄</span>
+                </button>
+                <div class="bBody">
+                  <div class="pillRow">
+                    <a class="pill" href="#" data-subject="mt"><span class="pillDot"></span>Matematik</a>
+                    <a class="pill" href="#" data-subject="sc"><span class="pillDot"></span>Sains</a>
+                    <a class="pill" href="#" data-subject="ict"><span class="pillDot"></span>Biologi</a>
+                    <a class="pill" href="#" data-subject="ict"><span class="pillDot"></span>Fizik</a>
+                    <a class="pill" href="#" data-subject="ict"><span class="pillDot"></span>Kimia</a>
+                    <a class="pill" href="#" data-subject="mt2"><span class="pillDot"></span>Matematik Tambahan</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bidang Sains Sosial -->
+              <div class="bidang">
+                <button class="bHeadBtn" type="button">
+                  <span>Bidang Sains Sosial</span>
+                  <span class="bArrow">⌄</span>
+                </button>
+                <div class="bBody">
+                  <div class="pillRow">
+                    <a class="pill" href="#" data-subject="sej"><span class="pillDot"></span>Sejarah</a>
+                    <a class="pill" href="#" data-subject="geo"><span class="pillDot"></span>Geografi</a>
+                    <a class="pill" href="#" data-subject="pi"><span class="pillDot"></span>Pendidikan Moral</a>
+                    <a class="pill" href="#" data-subject="pn"><span class="pillDot"></span>Pendidikan Seni Visual</a>
+                    <a class="pill" href="#" data-subject="pn"><span class="pillDot"></span>PJPK</a>
+                    <a class="pill" href="#" data-subject="pn"><span class="pillDot"></span>Sains Sukan</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TVET -->
+              <div class="bidang">
+                <button class="bHeadBtn" type="button">
+                  <span>TVET</span>
+                  <span class="bArrow">⌄</span>
+                </button>
+                <div class="bBody">
+                  <div class="pillRow">
+                    <a class="pill" href="#" data-subject="rbt"><span class="pillDot"></span>Pertanina</a>
+                    <a class="pill" href="#" data-subject="pvma"><span class="pillDot"></span>Perniagaan</a>
+                    <a class="pill" href="#" data-subject="rek"><span class="pillDot"></span>Ekonomi</a>
+                    <a class="pill" href="#" data-subject="tvet2"><span class="pillDot"></span>Asas Kelestarian</a>
+                    <a class="pill" href="#" data-subject="rek"><span class="pillDot"></span>Katering dan Penyajian</a>
+                    <a class="pill" href="#" data-subject="tvet2"><span class="pillDot"></span>Landskap dan Nursery</a>
+                    <a class="pill" href="#" data-subject="tvet2"><span class="pillDot"></span>Reka Bentuk Teknologi</a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="tile panel" id="panel">
+        <div class="panelContent">
+
+          <div class="panelHeadRow">
+            <h2 class="panelH" id="dashTitle">Schools Dashboard</h2>
+            <div class="badge" id="subjectBadge" title="Current selection">
+              <span class="badgeDot"></span>
+              <span id="badgeText">Bahasa Melayu</span>
+            </div>
+          </div>
+
+          <p class="panelP" id="dashDesc">
+            Pilih modul di bawah untuk akses fail, rujukan atau ringkasan dashboard.
+          </p>
+
+          <div class="panelGrid">
+            <div class="pCard" data-module="pengurusan">
+              <div class="pTop">
+                <h3 class="pTitle">Pengurusan Am</h3>
+                <div class="pIco">🏛️</div>
+              </div>
+              <p class="pSub">Dokumen asas, borang, SOP dan rujukan harian.</p>
+            </div>
+
+            <div class="pCard" data-module="pekeliling">
+              <div class="pTop">
+                <h3 class="pTitle">Pekeliling</h3>
+                <div class="pIco">📌</div>
+              </div>
+              <p class="pSub">Surat pekeliling, arahan rasmi & garis panduan.</p>
+            </div>
+
+            <div class="pCard" data-module="mesyuarat">
+              <div class="pTop">
+                <h3 class="pTitle">Mesyuarat</h3>
+                <div class="pIco">🗓️</div>
+              </div>
+              <p class="pSub">Minit, agenda, tindakan susulan & rekod keputusan.</p>
+            </div>
+
+            <div class="pCard" data-module="pentaksiran">
+              <div class="pTop">
+                <h3 class="pTitle">Pentaksiran</h3>
+                <div class="pIco">📝</div>
+              </div>
+              <p class="pSub">Ujian, analisis, PBD, SPM/STPM & eviden.</p>
+            </div>
+
+            <div class="pCard" data-module="perancangan">
+              <div class="pTop">
+                <h3 class="pTitle">Perancangan Strategik</h3>
+                <div class="pIco">🎯</div>
+              </div>
+              <p class="pSub">Pelan tindakan, KPI, timeline & pemantauan.</p>
+            </div>
+
+            <div class="pCard" data-module="kewangan">
+              <div class="pTop">
+                <h3 class="pTitle">Kewangan</h3>
+                <div class="pIco">💳</div>
+              </div>
+              <p class="pSub">Bajet, perolehan, laporan & rekod kewangan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <div class="foot">Tip: Select a subject (left), then choose a module (right).</div>
+
+  <script>
+    /*****************************************************************
+     * THEME TOGGLE (ADDED)
+     *****************************************************************/
+    (function initThemeToggle(){
+      const btn = document.getElementById("themeToggle");
+      if (!btn) return;
+
+      const KEY = "school_theme";
+      const saved = localStorage.getItem(KEY); // "light" | "dark" | null
+      const isLight = saved === "light";
+
+      if (isLight) document.body.classList.add("light");
+
+      function syncBtn(){
+        const light = document.body.classList.contains("light");
+        btn.textContent = light ? "🌙 Dark" : "☀ Light";
+        btn.setAttribute("aria-pressed", light ? "true" : "false");
+      }
+
+      syncBtn();
+
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("light");
+        const lightNow = document.body.classList.contains("light");
+        localStorage.setItem(KEY, lightNow ? "light" : "dark");
+        syncBtn();
+      });
+    })();
+
+    /*****************************************************************
+     * 1) SVG PATH MORPH (PURE JS)
+     *****************************************************************/
+    const B1_A = "M 120 340 C 140 220 220 140 340 150 C 460 160 520 90 640 120 C 760 150 880 250 850 360 C 820 470 700 520 590 500 C 480 480 420 560 300 520 C 180 480 100 460 120 340 Z";
+    const B1_B = "M 160 320 C 110 210 250 120 360 170 C 470 220 520 80 650 140 C 780 200 900 250 830 390 C 770 510 690 500 570 470 C 450 440 420 560 290 520 C 160 480 210 420 160 320 Z";
+
+    const B2_A = "M 650 120 C 760 70 890 120 900 220 C 910 320 820 350 760 410 C 700 470 650 520 560 500 C 470 480 450 410 480 330 C 510 250 540 170 650 120 Z";
+    const B2_B = "M 610 140 C 720 60 900 90 910 230 C 920 370 820 360 770 430 C 720 500 650 540 560 500 C 470 460 430 410 460 320 C 490 230 500 190 610 140 Z";
+
+    const blob1 = document.getElementById("blob1");
+    const blob2 = document.getElementById("blob2");
+
+    function tokenizePath(d){
+      const parts = d.match(/[a-zA-Z]|-?\d*\.?\d+/g) || [];
+      const nums = [];
+      parts.forEach(p => { if (/^-?\d*\.?\d+$/.test(p)) nums.push(parseFloat(p)); });
+      return { parts, nums };
     }
-    function hideMsg(){
-      msg.style.display = "none";
+
+    function interpPath(fromD, toD, t){
+      const A = tokenizePath(fromD);
+      const B = tokenizePath(toD);
+      if (A.nums.length !== B.nums.length) return fromD;
+
+      const out = [];
+      let ni = 0;
+      for (const p of A.parts){
+        if (/^-?\d*\.?\d+$/.test(p)) {
+          const v = A.nums[ni] + (B.nums[ni] - A.nums[ni]) * t;
+          out.push(String(Math.round(v * 100) / 100));
+          ni++;
+        } else out.push(p);
+      }
+      return out.join(" ");
     }
 
-    // If already logged in, go straight to index (or app)
-    onAuthStateChanged(auth, (user) => {
-      if (user) window.location.href = "/index.html";
+    const easeInOut = (t) => (t < 0.5) ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+
+    function morphLoop(el, A, B, ms){
+      let dir = 1;
+      let start = performance.now();
+      function step(now){
+        const p = Math.min(1, (now - start) / ms);
+        const tt = easeInOut(p);
+        el.setAttribute("d", dir === 1 ? interpPath(A,B,tt) : interpPath(B,A,tt));
+        if (p >= 1){ dir *= -1; start = performance.now(); }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    blob1.setAttribute("d", B1_A);
+    blob2.setAttribute("d", B2_A);
+    morphLoop(blob1, B1_A, B1_B, 5200);
+    morphLoop(blob2, B2_A, B2_B, 6800);
+
+
+
+    /*****************************************************************
+     * 3) Accordion: ONLY ONE open at a time
+     *****************************************************************/
+    const bidangBoxes = Array.from(document.querySelectorAll(".bidang"));
+
+    function setMaxHeight(box, open){
+      const body = box.querySelector(".bBody");
+      if (!body) return;
+      body.style.maxHeight = open ? (body.scrollHeight + "px") : "0px";
+    }
+
+    bidangBoxes.forEach(box => setMaxHeight(box, false));
+
+    bidangBoxes.forEach(box => {
+      const btn = box.querySelector(".bHeadBtn");
+      btn.addEventListener("click", () => {
+        const willOpen = !box.classList.contains("open");
+
+        bidangBoxes.forEach(b => {
+          b.classList.remove("open");
+          setMaxHeight(b, false);
+        });
+
+        if (willOpen){
+          box.classList.add("open");
+          setMaxHeight(box, true);
+        }
+      });
     });
 
-    el("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      hideMsg();
+    /*****************************************************************
+     * 4) Dynamic Links: subject (left) -> module (right) -> URL
+     *****************************************************************/
+    let currentSubject = "bm"; // default
 
-      const email = el("email").value.trim();
-      const password = el("password").value;
+    const SUBJECT_LABEL = {
+      bm: "Bahasa Melayu",
+      bi: "Bahasa Inggeris",
+      ba: "Bahasa Arab",
+      bkd: "BKD",
+      mt: "Matematik",
+      mt2: "Matematik Tambahan",
+      sc: "Sains",
+      ict: "TMK / ICT",
+      sej: "Sejarah",
+      geo: "Geografi",
+      pi: "Pendidikan Islam",
+      pn: "Perniagaan",
+      rbt: "RBT",
+      pvma: "PVMA",
+      rek: "Reka Cipta",
+      tvet2: "Modul TVET"
+    };
 
-      try{
-        await signInWithEmailAndPassword(auth, email, password);
+    // Replace these placeholder URLs with your real Google Drive folder/file links.
+    const LINKS = {
+      bm: {
+        pengurusan: "https://drive.google.com/drive/folders/1moE7cxUP4p4qaiYx6uua9DnJLQBxcrPE?usp=sharing",
+        pekeliling: "https://drive.google.com/drive/folders/AAA_BM_PEKELILING",
+        mesyuarat: "https://drive.google.com/drive/folders/AAA_BM_MESYUARAT",
+        pentaksiran: "https://drive.google.com/drive/folders/AAA_BM_PENTAKSIRAN",
+        perancangan: "https://drive.google.com/drive/folders/AAA_BM_PERANCANGAN",
+        kewangan: "https://drive.google.com/drive/folders/AAA_BM_KEWANGAN",
+      },
+      bi: {
+        pengurusan: "https://drive.google.com/drive/folders/1ryrD8GHenPvkzyWXKkze9HcgVNQKW9z6?usp=sharing",
+        pekeliling: "https://drive.google.com/drive/folders/BBB_BI_PEKELILING",
+        mesyuarat: "https://drive.google.com/drive/folders/BBB_BI_MESYUARAT",
+        pentaksiran: "https://drive.google.com/drive/folders/BBB_BI_PENTAKSIRAN",
+        perancangan: "https://drive.google.com/drive/folders/BBB_BI_PERANCANGAN",
+        kewangan: "https://drive.google.com/drive/folders/BBB_BI_KEWANGAN",
+      },
+      // add the rest as needed (same structure)
+      ba: {}, bkd: {}, mt: {}, mt2: {}, sc: {}, ict: {}, sej: {}, geo: {}, pi: {}, pn: {}, rbt: {}, pvma: {}, rek: {}, tvet2: {}
+    };
 
-        // After login: go index; index will show only allowed modules.
-        window.location.href = "/index.html";
-      }catch(err){
-        // Friendly errors
-        const code = (err && err.code) ? err.code : "";
-        let text = "Login failed. Please try again.";
-        if (code.includes("auth/invalid-credential")) text = "Wrong email or password.";
-        if (code.includes("auth/user-not-found")) text = "No user found for that email.";
-        if (code.includes("auth/wrong-password")) text = "Wrong password.";
-        if (code.includes("auth/too-many-requests")) text = "Too many attempts. Try again later.";
-        showMsg(text, "error");
-      }
+    const badgeText = document.getElementById("badgeText");
+    const dashTitle = document.getElementById("dashTitle");
+    const toast = document.getElementById("toast");
+
+    let toastTimer = null;
+
+    function showToast(msg){
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 900);
+    }
+
+    function setSelectedSubjectUI(key){
+      document.querySelectorAll('.pill[data-subject]').forEach(a => {
+        a.classList.remove("isActive");
+      });
+      const active = document.querySelector(`.pill[data-subject="${key}"]`);
+      if (active) active.classList.add("isActive");
+    }
+
+    function setSubject(key){
+      currentSubject = key;
+      const label = SUBJECT_LABEL[key] || key;
+      badgeText.textContent = label;
+      dashTitle.textContent = "Schools Dashboard";
+      setSelectedSubjectUI(key);
+      showToast("Selected: " + label);
+    }
+
+    // LEFT: choose subject
+    document.querySelectorAll('.pill[data-subject]').forEach(a => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const key = a.getAttribute("data-subject");
+        if (!key) return;
+        setSubject(key);
+      });
+    });
+
+    // default highlight only (do NOT auto-open any bidang)
+    setSubject(currentSubject);
+    // all bidang already set to closed by: bidangBoxes.forEach(box => setMaxHeight(box, false));
+
+
+    // RIGHT: open module link based on currentSubject
+    document.querySelectorAll(".pCard[data-module]").forEach(card => {
+      card.addEventListener("click", () => {
+        const mod = card.getAttribute("data-module");
+        const url = LINKS?.[currentSubject]?.[mod];
+
+        if (!url){
+          showToast("No link set for: " + (SUBJECT_LABEL[currentSubject] || currentSubject));
+          return;
+        }
+
+        window.open(url, "DRIVE_PORTAL", "noopener");
+      });
     });
   </script>
 </body>
