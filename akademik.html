@@ -30,11 +30,11 @@
     /* ===== Background image ===== */
     .bg{
       position: fixed; inset:0; z-index:0;
-      background:
+      ground:
         linear-gradient(to bottom, rgba(0,0,0,.62), rgba(0,0,0,.68)),
         url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=2200&q=60");
-      background-size: cover;
-      background-position: center;
+      ground-size: cover;
+      ground-position: center;
       filter: saturate(1.02) contrast(1.02);
       transform: scale(1.02);
     }
@@ -55,8 +55,8 @@
       z-index: 10;
       display:flex; align-items:center; justify-content:space-between;
       padding: 0 14px;
-      backdrop-filter: blur(16px);
-      background: rgba(10,12,16,.55);
+      drop-filter: blur(16px);
+      ground: rgba(10,12,16,.55);
       border-bottom: 1px solid rgba(255,255,255,.12);
     }
     .brand{
@@ -68,7 +68,7 @@
     .mark{
       width: 34px; height:34px; border-radius: 14px;
       border: 1px solid rgba(255,255,255,.14);
-      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), rgba(255,255,255,.05) 60%, rgba(255,255,255,.02));
+      ground: radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), rgba(255,255,255,.05) 60%, rgba(255,255,255,.02));
       display:flex; align-items:center; justify-content:center;
     }
     .nav a{
@@ -76,14 +76,14 @@
       padding: 9px 11px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      ground: rgba(255,255,255,.06);
       color: rgba(255,255,255,.90);
       text-decoration:none;
-      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+      transition: transform 220ms var(--ease), ground 220ms var(--ease), box-shadow 220ms var(--ease);
     }
     .nav a:hover{
       transform: translateY(-2px);
-      background: rgba(255,255,255,.10);
+      ground: rgba(255,255,255,.10);
       box-shadow: 0 16px 36px rgba(0,0,0,.22);
     }
 
@@ -112,8 +112,8 @@
     .tile{
       border-radius: var(--r);
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(12,14,18,.40);
-      backdrop-filter: blur(18px);
+      ground: rgba(12,14,18,.40);
+      drop-filter: blur(18px);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
@@ -190,7 +190,7 @@
       padding: 8px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      ground: rgba(255,255,255,.06);
       color: rgba(255,255,255,.88);
       font-size: 12px;
       font-weight: 780;
@@ -625,7 +625,7 @@
     <div class="nav">
       <!-- ADDED: theme toggle button -->
       <button class="themeBtn" id="themeToggle" type="button" aria-label="Toggle theme">☀ Light</button>
-      <a href="../index.html">Back</a>
+      <a href="index.html">Back</a>
     </div>
   </header>
 
