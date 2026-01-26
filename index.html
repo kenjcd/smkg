@@ -3,390 +3,551 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>School Portal</title>
-  <meta name="description" content="Role-based school portal (Firebase Auth)" />
+  <title>Dashboard SMKG</title>
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#101b33;
-      --card2:#0f1830;
-      --text:#eaf0ff;
-      --muted:#aab7df;
-      --line:rgba(255,255,255,.08);
-      --accent:#7dd3fc;
-      --accent2:#a78bfa;
-      --good:#34d399;
-      --warn:#fbbf24;
-      --bad:#fb7185;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 10% 10%, rgba(125,211,252,.15), transparent 60%),
-                  radial-gradient(1000px 700px at 90% 0%, rgba(167,139,250,.12), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      min-height:100vh;
-    }
-    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
-    .topbar{
-      display:flex;gap:12px;align-items:center;justify-content:space-between;
-      padding:14px 16px;border:1px solid var(--line);border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(16,27,51,.9), rgba(15,24,48,.7));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
-      position: sticky; top: 12px; z-index: 10;
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:38px;height:38px;border-radius:12px;
-      background: linear-gradient(135deg, rgba(125,211,252,.9), rgba(167,139,250,.9));
-      display:grid;place-items:center;font-weight:900;color:#071023;
-      box-shadow: 0 10px 20px rgba(0,0,0,.25);
-    }
-    .brand h1{margin:0;font-size:15px;letter-spacing:.3px}
-    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
-    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .chip{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      padding:8px 10px;border-radius:999px;
-      font-size:12px;color:var(--muted);
-      display:flex;align-items:center;gap:8px;
-    }
-    .btn{
-      cursor:pointer;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      padding:9px 12px;
-      border-radius:12px;
-      font-weight:600;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      text-decoration:none;
-      display:inline-flex;align-items:center;gap:8px;
-    }
-    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18)}
-    .btn.primary{
-      border-color: rgba(125,211,252,.35);
-      background: rgba(125,211,252,.12);
-    }
-    .btn.danger{
-      border-color: rgba(251,113,133,.35);
-      background: rgba(251,113,133,.10);
+      --navH: 64px;
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --ease2: cubic-bezier(.16,1,.3,1);
+      --dur: 560ms;
+
+      --bg0: #07080b;
+      --glass: rgba(12,14,18,.55);
+      --border: rgba(255,255,255,.14);
+
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.74);
+      --shadow: 0 18px 55px rgba(0,0,0,.45);
+      --r: 18px;
     }
 
-    .hero{
-      margin-top:18px;
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(16,27,51,.6), rgba(15,24,48,.35));
-      padding:18px 16px;
-      box-shadow: var(--shadow);
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial; background: var(--bg0); overflow:hidden; }
+    a{ color: inherit; text-decoration: none; }
+    button{ font: inherit; }
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
     }
-    .hero h2{margin:0;font-size:18px}
-    .hero p{margin:6px 0 0;color:var(--muted);line-height:1.45}
+
+    /* Background */
+    .bg{
+      position: fixed; inset:0; z-index:0;
+      background:
+        radial-gradient(900px 600px at 18% 18%, rgba(255,255,255,.10), transparent 55%),
+        radial-gradient(900px 700px at 82% 28%, rgba(255,255,255,.08), transparent 55%),
+        radial-gradient(900px 700px at 60% 92%, rgba(255,255,255,.07), transparent 60%),
+        linear-gradient(180deg, #05060a, #07080b 60%, #05060a);
+    }
     .grid{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:12px;
+      position:absolute; inset:0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 68px 68px;
+      opacity:.08;
+      mask-image: radial-gradient(600px 360px at 30% 30%, black 25%, transparent 70%);
+      pointer-events:none;
     }
-    @media (max-width: 980px){ .grid{grid-template-columns: repeat(2, minmax(0, 1fr));}}
-    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;}}
-    .card{
-      position:relative;
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(16,27,51,.72), rgba(15,24,48,.55));
-      padding:14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
-      overflow:hidden;
-      min-height: 112px;
+
+    /* Top nav */
+    .topbar{
+      position: fixed; inset: 0 0 auto 0;
+      height: var(--navH);
+      z-index: 50;
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 0 14px;
+      backdrop-filter: blur(16px);
+      background: rgba(10,12,16,.55);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      transform: translateY(-10px);
+      opacity: 0;
+      animation: navIn 760ms var(--ease2) forwards;
     }
-    .card:hover{transform: translateY(-2px); border-color: rgba(255,255,255,.18); background: linear-gradient(180deg, rgba(16,27,51,.85), rgba(15,24,48,.62))}
-    .card a{color:inherit;text-decoration:none;display:flex;gap:12px}
-    .ico{
-      width:44px;height:44px;border-radius:16px;
-      display:grid;place-items:center;
-      font-size:20px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      flex:0 0 auto;
+    @keyframes navIn{ to{ transform: translateY(0); opacity: 1; } }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      color:#fff; font-weight: 820; letter-spacing:.2px;
+      user-select:none;
     }
-    .meta{min-width:0}
-    .title{font-weight:800;margin:0;font-size:14px;letter-spacing:.2px}
-    .desc{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
-    .badge{
-      position:absolute;top:10px;right:10px;
-      font-size:11px;
-      padding:6px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
+    .mark{
+      width: 34px; height: 34px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), rgba(255,255,255,.05) 60%, rgba(255,255,255,.02));
+      box-shadow: 0 12px 25px rgba(0,0,0,.22);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 14px;
     }
-    .badge.ok{border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.10); color: #b7f7dc}
-    .badge.lock{border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10); color: #ffe7ab}
-    .footnote{
-      margin-top:14px;
-      color: var(--muted);
+    .sub{
       font-size: 12px;
-      line-height: 1.5;
+      color: rgba(255,255,255,.62);
+      font-weight: 650;
+      margin-top: 1px;
     }
-    .muted{color:var(--muted)}
-    .hidden{display:none !important}
+
+    .navlinks{ display:flex; align-items:center; gap:10px; }
+    .navlinks a{
+      padding: 9px 11px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.90);
+      font-size: 14px;
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+      will-change: transform;
+    }
+    .navlinks a:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 16px 36px rgba(0,0,0,.22);
+    }
+
+    /* Slides */
+    .viewport{
+      position: relative;
+      z-index: 5;
+      height: 100%;
+      padding-top: var(--navH);
+      overflow:hidden;
+    }
+    .track{
+      height: calc(100% - var(--navH));
+      display:flex;
+      transition: transform var(--dur) var(--ease2);
+      will-change: transform;
+    }
+    .slide{
+      width: 100vw;
+      height: calc(100vh - var(--navH));
+      flex: 0 0 100%;
+      position: relative;
+      overflow:hidden;
+    }
+
+    .img{
+      position:absolute; inset:0;
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.02);
+      transition: transform 1000ms var(--ease2), filter 1000ms var(--ease2);
+      filter: saturate(1.02) contrast(1.02);
+      will-change: transform;
+    }
+    .slide.active .img{ animation: zoom 18s linear forwards; }
+    @keyframes zoom{ from{ transform: scale(1.02); } to{ transform: scale(1.07); } }
+
+    .overlay{
+      position:absolute; inset:0;
+      background:
+        linear-gradient(to top, rgba(0,0,0,.80), rgba(0,0,0,.26) 60%, rgba(0,0,0,.12)),
+        radial-gradient(900px 520px at 28% 22%, rgba(255,255,255,.10), transparent 60%);
+    }
+
+    .content{
+      position:absolute;
+      left: 16px; right: 16px;
+      bottom: 16px;
+      max-width: 1020px;
+      z-index: 2;
+      color:#fff;
+    }
+    .card{
+      display:inline-block;
+      width: min(1020px, 100%);
+      padding: 18px 18px 16px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(12,14,18,.42);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      transform: translateY(18px);
+      opacity: 0;
+      transition: transform 620ms var(--ease2), opacity 620ms var(--ease2);
+      transition-delay: 90ms;
+    }
+    .slide.active .card{ transform: translateY(0); opacity: 1; }
+
+    .kicker{
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.74);
+    }
+    .title{
+      margin: 7px 0 10px;
+      font-size: clamp(26px, 3.4vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .note{
+      margin:0;
+      font-size: clamp(14px, 1.5vw, 18px);
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 78ch;
+    }
+    .extra{
+      margin-top: 10px;
+      font-size: 14px;
+      color: rgba(255,255,255,.78);
+      line-height: 1.55;
+      max-width: 80ch;
+    }
+    .bullets{
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: rgba(255,255,255,.78);
+      line-height: 1.55;
+    }
+    .bullets li{ margin: 4px 0; }
+
+    .hl{ position: relative; display:inline-block; color: rgba(255,255,255,.96); }
+    .hl::after{
+      content:"";
+      position:absolute;
+      left:0; bottom:-7px;
+      height: 2px;
+      width: 0%;
+      background: rgba(255,255,255,.82);
+      border-radius: 999px;
+      opacity: .95;
+    }
+    .slide.active .hl::after{
+      animation: underline 650ms var(--ease2) forwards;
+      animation-delay: 380ms;
+    }
+    @keyframes underline{ to{ width: 100%; } }
+
+    /* Pills */
+    .pills{
+      position: fixed;
+      left: 14px; bottom: 16px;
+      z-index: 60;
+      display:flex; gap:10px; align-items:center;
+    }
+    .pill{
+      position: relative;
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.14);
+      opacity: .85;
+      cursor:pointer;
+      transition: width 260ms var(--ease2), background 260ms var(--ease2), opacity 260ms var(--ease2);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
+    }
+    .pill.active{
+      width: 54px;
+      opacity: 1;
+      background: rgba(255,255,255,.20);
+    }
+    .pill .bar{
+      position:absolute; inset:0;
+      width: 0%;
+      background: rgba(255,255,255,.55);
+      border-radius: 999px;
+    }
+    .pill.active.running .bar{ animation: fill linear forwards; }
+    @keyframes fill{ to{ width: 100%; } }
+
+    /* Arrows */
+    .controls{
+      position: fixed;
+      right: 14px; bottom: 14px;
+      z-index: 60;
+      display:flex; gap:10px;
+    }
+    .btn{
+      width: 48px; height: 48px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      cursor:pointer;
+      font-size: 20px;
+      backdrop-filter: blur(14px);
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+    }
+    .btn:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.12);
+      box-shadow: 0 16px 36px rgba(0,0,0,.22);
+    }
+
+    /* ===== Page transition overlay (push from top) ===== */
+    .pageTrans{
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events:none;
+      transform: translateY(-110%);
+      background: radial-gradient(1200px 700px at 30% 20%, rgba(255,255,255,.12), transparent 60%),
+                  linear-gradient(180deg, rgba(10,12,16,.95), rgba(10,12,16,.92));
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(18px);
+    }
+    .pageTrans.run{
+      pointer-events:auto;
+      animation: pushDown 520ms var(--ease2) forwards;
+    }
+    @keyframes pushDown{
+      to{ transform: translateY(0%); }
+    }
+
+    /* Mobile */
+    @media (max-width: 820px){
+      .navlinks{ display:none; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">SP</div>
-        <div>
-          <h1>School Portal</h1>
-          <p id="subText">Loading authentication…</p>
-        </div>
-      </div>
-      <div class="actions">
-        <div class="chip" id="userChip">
-          <span>👤</span>
-          <span class="muted" id="userText">Not signed in</span>
-        </div>
+  <div class="bg"><div class="grid"></div></div>
+  <div class="pageTrans" id="pageTrans" aria-hidden="true"></div>
 
-        <a class="btn primary" id="btnLogin" href="/login.html">🔐 Login</a>
-        <button class="btn danger hidden" id="btnLogout" type="button">🚪 Logout</button>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">◆</div>
+      <div>
+        <div>Dashboard SMKG</div>
+        <div class="sub">Showcase • Dashboard</div>
       </div>
     </div>
 
-    <div class="hero">
-      <h2 id="heroTitle">Welcome</h2>
-      <p id="heroDesc">
-        Sign in to see the modules you are assigned. If you try to open modules by direct URL,
-        access will be checked again on the protected page.
-      </p>
+    <!-- NOTE: links use page transition -->
+    <nav class="navlinks" aria-label="Top navigation">
+      <a href="pages/moe.html" data-trans="true">Pengurusan</a>
+      <a href="pages/schools.html" data-trans="true">HEM</a>
+      <a href="pages/about.html" data-trans="true">Ko-Kurikulum</a>
+      <a href="pages/about.html" data-trans="true">Live</a>
+    </nav>
+  </header>
 
-      <div class="grid" id="portalGrid">
-        <!-- Cards injected here -->
-      </div>
+  <main class="viewport">
+    <section class="track" id="track" aria-label="Full-screen slides"></section>
+  </main>
 
-      <div class="footnote">
-        <div><b>Admin note:</b> Roles are read from Firebase Auth token <span class="muted">(custom claims)</span>.</div>
-        <div class="muted">If you don’t set claims yet, you can optionally enable Firestore fallback in the JS (see code).</div>
-      </div>
-    </div>
+  <div class="pills" id="pills" aria-label="Slide navigation"></div>
+
+  <div class="controls" aria-label="Slide controls">
+    <button class="btn" id="prev" aria-label="Previous slide">‹</button>
+    <button class="btn" id="next" aria-label="Next slide">›</button>
   </div>
 
-  <!-- Firebase + App Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-    // OPTIONAL: Firestore fallback for roles (only if you want it)
-    import {
-      getFirestore,
-      doc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
+  <script>
     /***********************
-     * 1) PUT YOUR CONFIG HERE
+     * SLIDES (EDIT HERE)
+     * Add/remove objects to change 3 → 4 → 5 slides.
+     * - extra: extra paragraph text
+     * - bullets: bullet list
      ***********************/
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVcU-r88-q57FgZsK0xwsY2oXlRagxZf8",
-      authDomain: "dashboard-smkg.firebaseapp.com",
-      projectId: "dashboard-smkg",
-      appId: "1:725047177734:web:53ceaeed2dd9b3da85c987"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // If you want Firestore fallback:
-    const db = getFirestore(app);
-
-    /***********************
-     * 2) PORTALS (same look, role-gated)
-     ***********************/
-    const PORTALS = [
+    const SLIDES = [
       {
-        key: "akademik",
-        title: "Akademik",
-        desc: "Pengurusan kurikulum & bilik darjah.",
-        icon: "🎓",
-        badge: "Protected",
-        requiredAnyRole: ["admin", "akademik"]
+        kicker: "SHOWCASE",
+        title: `School <span class="hl">Performance</span> Overview`,
+        note: "Executive-friendly opener. One slide, one message, one image.",
+        extra: "Optional extra text: You can add a short narrative here to explain the story behind the numbers.",
+        bullets: [
+          "2025 focus: Improve core subjects consistency",
+          "Panel interventions tracked weekly",
+          "Targets aligned with district KPI"
+        ],
+        bg: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=2200&q=60"
       },
       {
-        key: "mmi",
-        title: "MMI",
-        desc: "Memaksimakan Masa Instruktional.",
-        icon: "👥",
-        badge: "Protected",
-        requiredAnyRole: ["admin", "mmi"]
+        kicker: "DASHBOARD",
+        title: `Trends & <span class="hl">Highlights</span>`,
+        note: "This slide becomes your KPI proof (charts later).",
+        extra: "Optional extra text: Keep it readable. 2 charts max per slide for admin viewing.",
+        bullets: [
+          "GPMP trend + subject heatmap (recommended)",
+          "Identify at-risk groups early",
+          "Compare TOV vs current vs target"
+        ],
+        bg: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=2200&q=60"
       },
       {
-        key: "gc",
-        title: "Guru Cemerlang",
-        desc: "Menginspirasi Generasi, Mencipta Masa Depan.",
-        icon: "🏆",
-        badge: "Protected",
-        requiredAnyRole: ["admin", "gc"]
+        kicker: "ACTION",
+        title: `Intervention <span class="hl">Next</span> Steps`,
+        note: "Clear plan. Clear ownership. Clear timeline.",
+        extra: "Optional extra text: This is where you show admin the playbook, not the raw data.",
+        bullets: [
+          "Week 1: Diagnose + set target groups",
+          "Week 2–3: Execute micro-interventions",
+          "Week 4: Review impact + refine"
+        ],
+        bg: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=2200&q=60"
       }
     ];
 
-    // Where protected modules live
-    function moduleUrl(key){
-      // Your protected page should re-check auth+role too
-      return `/app.html?module=${encodeURIComponent(key)}`;
-    }
+    const track = document.getElementById("track");
+    const pills = document.getElementById("pills");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const pageTrans = document.getElementById("pageTrans");
 
-    /***********************
-     * 3) UI helpers
-     ***********************/
-    const el = (id) => document.getElementById(id);
-    const portalGrid = el("portalGrid");
+    let idx = 0;
 
-    function setSignedOutUI(){
-      el("subText").textContent = "Not signed in — please login to continue.";
-      el("userText").textContent = "Not signed in";
-      el("btnLogin").classList.remove("hidden");
-      el("btnLogout").classList.add("hidden");
-      el("heroTitle").textContent = "Welcome";
-      el("heroDesc").textContent =
-        "Sign in to see the modules you are assigned. Direct URLs will still be checked on protected pages.";
-    }
+    // AUTO SLIDE: 10 seconds
+    const AUTO_MS = 10000;
+    let autoTimer = null;
 
-    function setSignedInUI(email, roleList){
-      el("subText").textContent = "Signed in. Your modules are filtered by role.";
-      el("userText").textContent = email || "Signed in";
-      el("btnLogin").classList.add("hidden");
-      el("btnLogout").classList.remove("hidden");
-      el("heroTitle").textContent = "Your Modules";
-      el("heroDesc").textContent =
-        `Visible modules are based on your roles: ${roleList.length ? roleList.join(", ") : "(none)"}.`;
-    }
+    function render(){
+      track.innerHTML = "";
+      pills.innerHTML = "";
 
-    function clearGrid(){
-      portalGrid.innerHTML = "";
-    }
+      SLIDES.forEach((s, i) => {
+        const slide = document.createElement("section");
+        slide.className = "slide" + (i === idx ? " active" : "");
 
-    function makeCard(portal, isAllowed){
-      const card = document.createElement("div");
-      card.className = "card";
-      const badgeClass = isAllowed ? "badge ok" : "badge lock";
-      const badgeText = isAllowed ? "Allowed" : "No Access";
+        const img = document.createElement("div");
+        img.className = "img";
+        img.style.backgroundImage = `url('${s.bg}')`;
 
-      card.innerHTML = `
-        <div class="${badgeClass}">${badgeText}</div>
-        <a href="${isAllowed ? moduleUrl(portal.key) : "/login.html"}" ${isAllowed ? "" : 'aria-disabled="true"'} >
-          <div class="ico">${portal.icon}</div>
-          <div class="meta">
-            <p class="title">${portal.title}</p>
-            <p class="desc">${portal.desc}</p>
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+
+        const content = document.createElement("div");
+        content.className = "content";
+
+        const extraHTML = s.extra ? `<div class="extra">${s.extra}</div>` : "";
+        const bulletsHTML = (s.bullets && s.bullets.length)
+          ? `<ul class="bullets">${s.bullets.map(b => `<li>${b}</li>`).join("")}</ul>`
+          : "";
+
+        content.innerHTML = `
+          <div class="card">
+            <div class="kicker">${s.kicker}</div>
+            <div class="title">${s.title}</div>
+            <p class="note">${s.note}</p>
+            ${extraHTML}
+            ${bulletsHTML}
           </div>
-        </a>
-      `;
+        `;
 
-      if (!isAllowed){
-        card.style.opacity = "0.72";
-        card.addEventListener("click", (e) => {
-          // Force users to login if they click locked modules
-          e.preventDefault();
-          window.location.href = "/login.html";
-        });
-      }
-      return card;
-    }
+        slide.appendChild(img);
+        slide.appendChild(overlay);
+        slide.appendChild(content);
+        track.appendChild(slide);
 
-    function hasAnyRole(userRoles, requiredAnyRole){
-      if (!requiredAnyRole || !requiredAnyRole.length) return true;
-      const s = new Set(userRoles);
-      return requiredAnyRole.some(r => s.has(r));
-    }
-
-    /***********************
-     * 4) Get roles from custom claims (recommended)
-     *    Optionally fallback to Firestore /users/{uid}.roles = ["akademik","mmi"]
-     ***********************/
-    async function getRolesForUser(user){
-      // 4A: custom claims
-      const tokenResult = await user.getIdTokenResult(true);
-      const claims = tokenResult.claims || {};
-
-      // You can choose one convention:
-      // - claims.roles = ["admin","akademik"]
-      // - or boolean flags like claims.admin = true
-      let roles = [];
-
-      if (Array.isArray(claims.roles)) roles = claims.roles.slice();
-      else if (typeof claims.role === "string") roles = [claims.role];
-
-      // Also accept boolean flags
-      ["admin","akademik","mmi","gc"].forEach(r => {
-        if (claims[r] === true && !roles.includes(r)) roles.push(r);
+        const p = document.createElement("button");
+        p.className = "pill" + (i === idx ? " active" : "");
+        p.setAttribute("aria-label", `Go to slide ${i+1}`);
+        p.innerHTML = `<span class="bar"></span>`;
+        p.addEventListener("click", () => { go(i); restartAuto(); });
+        pills.appendChild(p);
       });
 
-      // 4B: OPTIONAL Firestore fallback (if you haven’t built claims yet)
-      // Comment this whole block out if you only want claims.
-      if (!roles.length){
-        try{
-          const snap = await getDoc(doc(db, "users", user.uid));
-          if (snap.exists()){
-            const data = snap.data() || {};
-            if (Array.isArray(data.roles)) roles = data.roles.slice();
+      apply(true);
+      restartAuto();
+    }
+
+    function apply(restartAnimations){
+      track.style.transform = `translateX(${-idx * 100}vw)`;
+
+      const slides = [...track.children];
+      const ps = [...pills.children];
+
+      slides.forEach((s, i) => {
+        s.classList.toggle("active", i === idx);
+        if (restartAnimations && i === idx){
+          const img = s.querySelector(".img");
+          if (img){
+            img.style.animation = "none";
+            void img.offsetHeight;
+            img.style.animation = "";
           }
-        }catch(err){
-          // Ignore if rules block it or doc missing
         }
-      }
-
-      return roles;
-    }
-
-    /***********************
-     * 5) Render
-     ***********************/
-    async function renderForUser(user){
-      clearGrid();
-
-      if (!user){
-        setSignedOutUI();
-        // show cards in locked state
-        PORTALS.forEach(p => portalGrid.appendChild(makeCard(p, false)));
-        return;
-      }
-
-      const roles = await getRolesForUser(user);
-      setSignedInUI(user.email, roles);
-
-      PORTALS.forEach(p => {
-        const allowed = hasAnyRole(roles, p.requiredAnyRole);
-        portalGrid.appendChild(makeCard(p, allowed));
       });
+
+      ps.forEach((p, i) => {
+        p.classList.toggle("active", i === idx);
+        p.classList.remove("running");
+        const bar = p.querySelector(".bar");
+        if (bar){
+          bar.style.animation = "none";
+          bar.style.width = "0%";
+          void bar.offsetHeight;
+          bar.style.animation = "";
+        }
+      });
+
+      startProgressBar();
+    }
+
+    function go(i){
+      idx = (i + SLIDES.length) % SLIDES.length;
+      apply(true);
+    }
+
+    prevBtn.addEventListener("click", () => { go(idx - 1); restartAuto(); });
+    nextBtn.addEventListener("click", () => { go(idx + 1); restartAuto(); });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") { go(idx - 1); restartAuto(); }
+      if (e.key === "ArrowRight") { go(idx + 1); restartAuto(); }
+    });
+
+    // Swipe
+    let startX = null;
+    window.addEventListener("touchstart", e => startX = e.touches[0].clientX, {passive:true});
+    window.addEventListener("touchend", e => {
+      if (startX == null) return;
+      const endX = e.changedTouches[0].clientX;
+      const dx = endX - startX;
+      if (Math.abs(dx) > 45) { go(dx > 0 ? idx - 1 : idx + 1); restartAuto(); }
+      startX = null;
+    }, {passive:true});
+
+    function clearAuto(){
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
+    function startProgressBar(){
+      const active = pills.children[idx];
+      if (!active) return;
+      const bar = active.querySelector(".bar");
+      if (!bar) return;
+      active.classList.add("running");
+      bar.style.animationDuration = AUTO_MS + "ms";
+      bar.style.animationName = "fill";
+      bar.style.animationTimingFunction = "linear";
+      bar.style.animationFillMode = "forwards";
+    }
+
+    function restartAuto(){
+      clearAuto();
+      // reset progress
+      [...pills.children].forEach(p => {
+        p.classList.remove("running");
+        const bar = p.querySelector(".bar");
+        if (bar){ bar.style.animation = "none"; bar.style.width = "0%"; }
+      });
+      startProgressBar();
+      autoTimer = setInterval(() => go(idx + 1), AUTO_MS);
     }
 
     /***********************
-     * 6) Wire up auth state + logout
+     * PowerPoint-ish Page Transition for nav links
      ***********************/
-    el("btnLogout").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "/login.html";
+    function navigateWithTransition(url){
+      pageTrans.classList.add("run");
+      // wait for animation to cover screen, then navigate
+      setTimeout(() => { window.location.href = url; }, 520);
+    }
+
+    document.querySelectorAll('a[data-trans="true"]').forEach(a => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const url = a.getAttribute("href");
+        navigateWithTransition(url);
+      });
     });
 
-    onAuthStateChanged(auth, (user) => {
-      renderForUser(user);
-    });
+    render();
   </script>
 </body>
 </html>
-
