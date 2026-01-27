@@ -11,6 +11,7 @@
       --ease2: cubic-bezier(.16,1,.3,1);
       --dur: 560ms;
 
+      /* THEME (default = dark) */
       --bg0: #07080b;
       --glass: rgba(12,14,18,.55);
       --border: rgba(255,255,255,.14);
@@ -19,6 +20,51 @@
       --muted: rgba(255,255,255,.74);
       --shadow: 0 18px 55px rgba(0,0,0,.45);
       --r: 18px;
+
+      /* used by nav + some overlays */
+      --navBg: rgba(10,12,16,.55);
+      --navBorder: rgba(255,255,255,.12);
+      --btnBg: rgba(255,255,255,.06);
+      --btnBgHover: rgba(255,255,255,.10);
+      --btnBorder: rgba(255,255,255,.14);
+      --btnShadowHover: 0 16px 36px rgba(0,0,0,.22);
+
+      /* background ingredients (so we can swap them in light mode) */
+      --bg-r1: rgba(255,255,255,.10);
+      --bg-r2: rgba(255,255,255,.08);
+      --bg-r3: rgba(255,255,255,.07);
+      --bg-l1: #05060a;
+      --bg-l2: #07080b;
+
+      --gridLine: rgba(255,255,255,.06);
+      --gridOpacity: .08;
+    }
+
+    /* Light theme overrides */
+    html[data-theme="light"]{
+      --bg0: #f6f7fb;
+      --glass: rgba(255,255,255,.62);
+      --border: rgba(10,12,16,.14);
+
+      --text: rgba(10,12,16,.92);
+      --muted: rgba(10,12,16,.70);
+      --shadow: 0 18px 55px rgba(10,12,16,.10);
+
+      --navBg: rgba(255,255,255,.72);
+      --navBorder: rgba(10,12,16,.10);
+      --btnBg: rgba(10,12,16,.06);
+      --btnBgHover: rgba(10,12,16,.10);
+      --btnBorder: rgba(10,12,16,.12);
+      --btnShadowHover: 0 16px 36px rgba(10,12,16,.10);
+
+      --bg-r1: rgba(10,12,16,.10);
+      --bg-r2: rgba(10,12,16,.08);
+      --bg-r3: rgba(10,12,16,.06);
+      --bg-l1: #ffffff;
+      --bg-l2: #f6f7fb;
+
+      --gridLine: rgba(10,12,16,.08);
+      --gridOpacity: .10;
     }
 
     *{ box-sizing:border-box; }
@@ -33,18 +79,18 @@
     .bg{
       position: fixed; inset:0; z-index:0;
       background:
-        radial-gradient(900px 600px at 18% 18%, rgba(255,255,255,.10), transparent 55%),
-        radial-gradient(900px 700px at 82% 28%, rgba(255,255,255,.08), transparent 55%),
-        radial-gradient(900px 700px at 60% 92%, rgba(255,255,255,.07), transparent 60%),
-        linear-gradient(180deg, #05060a, #07080b 60%, #05060a);
+        radial-gradient(900px 600px at 18% 18%, var(--bg-r1), transparent 55%),
+        radial-gradient(900px 700px at 82% 28%, var(--bg-r2), transparent 55%),
+        radial-gradient(900px 700px at 60% 92%, var(--bg-r3), transparent 60%),
+        linear-gradient(180deg, var(--bg-l1), var(--bg-l2) 60%, var(--bg-l1));
     }
     .grid{
       position:absolute; inset:0;
       background-image:
-        linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
+        linear-gradient(to right, var(--gridLine) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--gridLine) 1px, transparent 1px);
       background-size: 68px 68px;
-      opacity:.08;
+      opacity: var(--gridOpacity);
       mask-image: radial-gradient(600px 360px at 30% 30%, black 25%, transparent 70%);
       pointer-events:none;
     }
@@ -57,8 +103,8 @@
       display:flex; align-items:center; justify-content:space-between;
       padding: 0 14px;
       backdrop-filter: blur(16px);
-      background: rgba(10,12,16,.55);
-      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: var(--navBg);
+      border-bottom: 1px solid var(--navBorder);
       transform: translateY(-10px);
       opacity: 0;
       animation: navIn 760ms var(--ease2) forwards;
@@ -67,20 +113,26 @@
 
     .brand{
       display:flex; align-items:center; gap:10px;
-      color:#fff; font-weight: 820; letter-spacing:.2px;
+      color: var(--text); font-weight: 820; letter-spacing:.2px;
       user-select:none;
     }
     .mark{
       width: 34px; height: 34px; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--btnBorder);
       background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), rgba(255,255,255,.05) 60%, rgba(255,255,255,.02));
       box-shadow: 0 12px 25px rgba(0,0,0,.22);
       display:flex; align-items:center; justify-content:center;
       font-size: 14px;
+      color: var(--text);
     }
+    html[data-theme="light"] .mark{
+      background: radial-gradient(circle at 30% 25%, rgba(10,12,16,.10), rgba(10,12,16,.04) 60%, rgba(10,12,16,.02));
+      box-shadow: 0 12px 25px rgba(10,12,16,.10);
+    }
+
     .sub{
       font-size: 12px;
-      color: rgba(255,255,255,.62);
+      color: color-mix(in srgb, var(--text) 68%, transparent);
       font-weight: 650;
       margin-top: 1px;
     }
@@ -89,17 +141,36 @@
     .navlinks a{
       padding: 9px 11px;
       border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.90);
+      border: 1px solid var(--btnBorder);
+      background: var(--btnBg);
+      color: var(--text);
       font-size: 14px;
       transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
       will-change: transform;
     }
     .navlinks a:hover{
       transform: translateY(-2px);
-      background: rgba(255,255,255,.10);
-      box-shadow: 0 16px 36px rgba(0,0,0,.22);
+      background: var(--btnBgHover);
+      box-shadow: var(--btnShadowHover);
+    }
+
+    /* Theme toggle button (matches navlinks style) */
+    .themeBtn{
+      padding: 9px 11px;
+      border-radius: 14px;
+      border: 1px solid var(--btnBorder);
+      background: var(--btnBg);
+      color: var(--text);
+      font-size: 14px;
+      cursor:pointer;
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+      will-change: transform;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .themeBtn:hover{
+      transform: translateY(-2px);
+      background: var(--btnBgHover);
+      box-shadow: var(--btnShadowHover);
     }
 
     /* Slides */
@@ -142,6 +213,11 @@
         linear-gradient(to top, rgba(0,0,0,.80), rgba(0,0,0,.26) 60%, rgba(0,0,0,.12)),
         radial-gradient(900px 520px at 28% 22%, rgba(255,255,255,.10), transparent 60%);
     }
+    html[data-theme="light"] .overlay{
+      background:
+        linear-gradient(to top, rgba(255,255,255,.72), rgba(255,255,255,.18) 60%, rgba(255,255,255,.10)),
+        radial-gradient(900px 520px at 28% 22%, rgba(10,12,16,.08), transparent 60%);
+    }
 
     .content{
       position:absolute;
@@ -149,14 +225,14 @@
       bottom: 16px;
       max-width: 1020px;
       z-index: 2;
-      color:#fff;
+      color: var(--text);
     }
     .card{
       display:inline-block;
       width: min(1020px, 100%);
       padding: 18px 18px 16px;
       border-radius: 22px;
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--btnBorder);
       background: rgba(12,14,18,.42);
       backdrop-filter: blur(16px);
       box-shadow: var(--shadow);
@@ -165,13 +241,16 @@
       transition: transform 620ms var(--ease2), opacity 620ms var(--ease2);
       transition-delay: 90ms;
     }
+    html[data-theme="light"] .card{
+      background: rgba(255,255,255,.62);
+    }
     .slide.active .card{ transform: translateY(0); opacity: 1; }
 
     .kicker{
       font-size: 12px;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.74);
+      color: color-mix(in srgb, var(--text) 78%, transparent);
     }
     .title{
       margin: 7px 0 10px;
@@ -190,26 +269,26 @@
     .extra{
       margin-top: 10px;
       font-size: 14px;
-      color: rgba(255,255,255,.78);
+      color: color-mix(in srgb, var(--text) 80%, transparent);
       line-height: 1.55;
       max-width: 80ch;
     }
     .bullets{
       margin: 10px 0 0;
       padding-left: 18px;
-      color: rgba(255,255,255,.78);
+      color: color-mix(in srgb, var(--text) 80%, transparent);
       line-height: 1.55;
     }
     .bullets li{ margin: 4px 0; }
 
-    .hl{ position: relative; display:inline-block; color: rgba(255,255,255,.96); }
+    .hl{ position: relative; display:inline-block; color: var(--text); }
     .hl::after{
       content:"";
       position:absolute;
       left:0; bottom:-7px;
       height: 2px;
       width: 0%;
-      background: rgba(255,255,255,.82);
+      background: color-mix(in srgb, var(--text) 92%, transparent);
       border-radius: 999px;
       opacity: .95;
     }
@@ -230,8 +309,8 @@
       position: relative;
       width: 10px; height: 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.28);
-      background: rgba(255,255,255,.14);
+      border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+      background: color-mix(in srgb, var(--text) 16%, transparent);
       opacity: .85;
       cursor:pointer;
       transition: width 260ms var(--ease2), background 260ms var(--ease2), opacity 260ms var(--ease2);
@@ -241,12 +320,12 @@
     .pill.active{
       width: 54px;
       opacity: 1;
-      background: rgba(255,255,255,.20);
+      background: color-mix(in srgb, var(--text) 22%, transparent);
     }
     .pill .bar{
       position:absolute; inset:0;
       width: 0%;
-      background: rgba(255,255,255,.55);
+      background: color-mix(in srgb, var(--text) 58%, transparent);
       border-radius: 999px;
     }
     .pill.active.running .bar{ animation: fill linear forwards; }
@@ -262,9 +341,9 @@
     .btn{
       width: 48px; height: 48px;
       border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color:#fff;
+      border: 1px solid var(--btnBorder);
+      background: var(--btnBg);
+      color: var(--text);
       cursor:pointer;
       font-size: 20px;
       backdrop-filter: blur(14px);
@@ -272,8 +351,8 @@
     }
     .btn:hover{
       transform: translateY(-2px);
-      background: rgba(255,255,255,.12);
-      box-shadow: 0 16px 36px rgba(0,0,0,.22);
+      background: var(--btnBgHover);
+      box-shadow: var(--btnShadowHover);
     }
 
     /* ===== Page transition overlay (push from top) ===== */
@@ -287,6 +366,11 @@
                   linear-gradient(180deg, rgba(10,12,16,.95), rgba(10,12,16,.92));
       border-bottom: 1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(18px);
+    }
+    html[data-theme="light"] .pageTrans{
+      background: radial-gradient(1200px 700px at 30% 20%, rgba(10,12,16,.10), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.90));
+      border-bottom: 1px solid rgba(10,12,16,.10);
     }
     .pageTrans.run{
       pointer-events:auto;
@@ -318,10 +402,16 @@
 
     <!-- NOTE: links use page transition -->
     <nav class="navlinks" aria-label="Top navigation">
-      <a href="akademik.html" data-trans="true">Pengurusan</a>
+      <a href="pages/moe.html" data-trans="true">Pengurusan</a>
       <a href="pages/schools.html" data-trans="true">HEM</a>
       <a href="pages/about.html" data-trans="true">Ko-Kurikulum</a>
       <a href="pages/about.html" data-trans="true">Live</a>
+
+      <!-- NEW: Light/Dark toggle -->
+      <button class="themeBtn" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
+        <span id="themeIcon" aria-hidden="true">☾</span>
+        <span id="themeLabel">Dark</span>
+      </button>
     </nav>
   </header>
 
@@ -337,6 +427,45 @@
   </div>
 
   <script>
+    /***********************
+     * THEME TOGGLE (NEW)
+     ***********************/
+    (function initTheme(){
+      const root = document.documentElement;
+      const btn = document.getElementById("themeToggle");
+      const ico = document.getElementById("themeIcon");
+      const lbl = document.getElementById("themeLabel");
+
+      function setTheme(t){
+        root.setAttribute("data-theme", t);
+        try{ localStorage.setItem("smkg_theme", t); }catch(_){}
+        if (t === "light"){
+          ico.textContent = "☀";
+          lbl.textContent = "Light";
+        } else {
+          ico.textContent = "☾";
+          lbl.textContent = "Dark";
+        }
+      }
+
+      // Load saved theme, else follow system preference
+      let saved = null;
+      try{ saved = localStorage.getItem("smkg_theme"); }catch(_){}
+      if (saved === "light" || saved === "dark"){
+        setTheme(saved);
+      } else {
+        const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+        setTheme(prefersLight ? "light" : "dark");
+      }
+
+      if (btn){
+        btn.addEventListener("click", () => {
+          const cur = root.getAttribute("data-theme") === "light" ? "light" : "dark";
+          setTheme(cur === "light" ? "dark" : "light");
+        });
+      }
+    })();
+
     /***********************
      * SLIDES (EDIT HERE)
      * Add/remove objects to change 3 → 4 → 5 slides.
@@ -551,5 +680,3 @@
   </script>
 </body>
 </html>
-
-
